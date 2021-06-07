@@ -6,14 +6,13 @@
 #  buildtool [-I /install/path] -bt[i] -jN
 # ======================================================================
 
-cmake_minimum_required (VERSION 3.12...3.18 FATAL_ERROR)
+cmake_minimum_required (VERSION 3.19 FATAL_ERROR)
 
-project(larana LANGUAGES CXX)
+project(larana VERSION 09.02.06 LANGUAGES CXX)
 
-# cetbuildtools contains our cmake modules
-find_package(cetbuildtools REQUIRED)
-
-list(APPEND CMAKE_MODULE_PATH $ENV{CANVAS_ROOT_IO_DIR}/Modules $ENV{ART_DIR}/Modules)
+find_package(cetmodules REQUIRED)
+find_package(canvas_root_io)
+find_package(art)
 
 include(CetCMakeEnv)
 cet_cmake_env()
@@ -54,10 +53,10 @@ add_subdirectory(larana)
 
 # tests
 add_subdirectory(test)
-
+add_subdirectory(cmakeConfig)
 # ups - table and config files
-add_subdirectory(ups)
+#add_subdirectory(ups)
 
 # packaging utility
-include(UseCPack)
+#include(UseCPack)
 

@@ -8,6 +8,7 @@ art_make(
     art_Utilities
     ${FHICLCPP}
     ${MF_MESSAGELOGGER}
+    ${CLHEP_LIBRARIES}
     ROOT::Core
     ROOT::Hist
     ROOT::MathCore
@@ -28,6 +29,5 @@ art_make(
 
 install_headers()
 install_fhicl()
-install_source()
 
 add_subdirectory(scripts)

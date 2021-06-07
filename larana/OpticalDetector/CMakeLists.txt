@@ -7,7 +7,7 @@ art_make(
     ${ART_FRAMEWORK_SERVICES_REGISTRY}
     ${ART_ROOT_IO_TFILESERVICE_SERVICE}
     ${ART_ROOT_IO_TFILE_SUPPORT}
-    ${CLHEP}
+    ${CLHEP_LIBRARIES}
     ${FHICLCPP}
     ${MF_MESSAGELOGGER}
     ROOT::Core
@@ -32,7 +32,7 @@ art_make(
     larsim_Simulation
     nurandom_RandomUtils_NuRandomService_service
   SERVICE_LIBRARIES
-    ${CLHEP}
+    ${CLHEP_LIBRARIES}
     ${MF_MESSAGELOGGER}
     ROOT::Core
     ROOT::Hist
@@ -41,5 +41,4 @@ art_make(
 
 install_headers()
 install_fhicl()
-install_source()
 install_fw(LIST toyWaveform.txt SUBDIRNAME OpticalDetector)
