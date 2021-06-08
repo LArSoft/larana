@@ -7,7 +7,7 @@ art_make(
     ${ART_ROOT_IO_TFILE_SUPPORT}
     art_Utilities
     fhiclcpp::fhiclcpp fhiclcpp::types
-    messagefacility::MFMessageLogger
+    messagefacility::MF_MessageLogger
     ${CLHEP_LIBRARIES}
     ROOT::Core
     ROOT::Hist

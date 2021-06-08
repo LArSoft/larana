@@ -9,7 +9,7 @@ art_make(
     ${ART_ROOT_IO_TFILE_SUPPORT}
     ${CLHEP_LIBRARIES}
     fhiclcpp::fhiclcpp fhiclcpp::types
-    messagefacility::MFMessageLogger
+    messagefacility::MF_MessageLogger
     ROOT::Core
     ROOT::Hist
     ROOT::Physics
@@ -33,7 +33,7 @@ art_make(
     nurandom_RandomUtils_NuRandomService_service
   SERVICE_LIBRARIES
     ${CLHEP_LIBRARIES}
-    messagefacility::MFMessageLogger
+    messagefacility::MF_MessageLogger
     ROOT::Core
     ROOT::Hist
     larcorealg_Geometry

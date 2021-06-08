@@ -17,7 +17,7 @@ art_make(
     ${ART_FRAMEWORK_SERVICES_REGISTRY}
     ${ART_ROOT_IO_TFILESERVICE_SERVICE}
     ${ART_ROOT_IO_TFILE_SUPPORT}
-    messagefacility::MFMessageLogger
+    messagefacility::MF_MessageLogger
     ROOT::Core
     ROOT::Physics
     ROOT::Tree
