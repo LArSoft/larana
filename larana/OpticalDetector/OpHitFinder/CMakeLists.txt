@@ -3,8 +3,8 @@ art_make(
   LIB_LIBRARIES
     lardataobj_RecoBase
     larcorealg_Geometry
-    ${MF_MESSAGELOGGER}
-    ${FHICLCPP}
+    messagefacility::MFMessageLogger
+    fhiclcpp::fhiclcpp fhiclcpp::types
     cetlib_except
     ROOT::Core
     ROOT::Hist

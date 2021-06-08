@@ -6,8 +6,8 @@ art_make(
     ${ART_ROOT_IO_TFILESERVICE_SERVICE}
     ${ART_ROOT_IO_TFILE_SUPPORT}
     art_Utilities
-    ${FHICLCPP}
-    ${MF_MESSAGELOGGER}
+    fhiclcpp::fhiclcpp fhiclcpp::types
+    messagefacility::MFMessageLogger
     ${CLHEP_LIBRARIES}
     ROOT::Core
     ROOT::Hist

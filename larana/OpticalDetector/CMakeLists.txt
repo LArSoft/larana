@@ -8,8 +8,8 @@ art_make(
     ${ART_ROOT_IO_TFILESERVICE_SERVICE}
     ${ART_ROOT_IO_TFILE_SUPPORT}
     ${CLHEP_LIBRARIES}
-    ${FHICLCPP}
-    ${MF_MESSAGELOGGER}
+    fhiclcpp::fhiclcpp fhiclcpp::types
+    messagefacility::MFMessageLogger
     ROOT::Core
     ROOT::Hist
     ROOT::Physics
@@ -33,7 +33,7 @@ art_make(
     nurandom_RandomUtils_NuRandomService_service
   SERVICE_LIBRARIES
     ${CLHEP_LIBRARIES}
-    ${MF_MESSAGELOGGER}
+    messagefacility::MFMessageLogger
     ROOT::Core
     ROOT::Hist
     larcorealg_Geometry

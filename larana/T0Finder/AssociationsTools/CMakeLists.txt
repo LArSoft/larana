@@ -5,7 +5,7 @@ art_make(
     ${ART_FRAMEWORK_PRINCIPAL}
     ${ART_FRAMEWORK_SERVICES_REGISTRY}
     ${ART_PERSISTENCY_PROVENANCE}
-    ${MF_MESSAGELOGGER}
+    messagefacility::MFMessageLogger
     ROOT::Core
     canvas
     larcorealg_Geometry

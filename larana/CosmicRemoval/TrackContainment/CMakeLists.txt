@@ -1,6 +1,6 @@
 art_make(
   LIB_LIBRARIES
-    ${FHICLCPP}
+    fhiclcpp::fhiclcpp fhiclcpp::types
     ROOT::Core
     cetlib_except
     larcorealg_Geometry
