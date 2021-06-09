@@ -4,9 +4,9 @@ add_subdirectory(OpHitFinder)
 
 art_make(
   LIB_LIBRARIES
-    ${ART_FRAMEWORK_SERVICES_REGISTRY}
-    ${ART_ROOT_IO_TFILESERVICE_SERVICE}
-    ${ART_ROOT_IO_TFILE_SUPPORT}
+    art::Framework_Services_Registry
+    art_root_io::TFileService_service
+    art_root_io::tfile_support
     ${CLHEP_LIBRARIES}
     fhiclcpp::fhiclcpp fhiclcpp::types
     messagefacility::MF_MessageLogger
@@ -25,7 +25,7 @@ art_make(
     larsim_PhotonPropagation_PhotonVisibilityService_service
     nusimdata_SimulationBase
   MODULE_LIBRARIES
-    ${ART_FRAMEWORK_SERVICES_REGISTRY}
+    art::Framework_Services_Registry
     larana_OpticalDetector
     lardataobj_RawData
     larsim_MCCheater_ParticleInventoryService_service
