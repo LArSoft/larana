@@ -40,8 +40,8 @@ find_ups_product( nug4 )
 find_ups_product( nurandom )
 find_ups_product( art )
 find_ups_product(art_root_io)
-find_ups_product( postgresql )
 find_ups_product( eigen )
+find_package( postgresql )
 
 # macros for dictionary and simple_plugin
 include(ArtDictionary)
