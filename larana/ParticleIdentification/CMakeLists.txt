@@ -2,7 +2,7 @@ art_make(
   LIB_LIBRARIES
     art::Framework_Principal
     art::Framework_Services_Registry
-    art::Persistency_Provenence
+    art::Persistency_Provenance
     art_root_io::TFileService_service
     art_root_io::tfile_support
     art_Utilities
