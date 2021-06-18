@@ -10,6 +10,8 @@ cmake_minimum_required (VERSION 3.19 FATAL_ERROR)
 
 project(larana VERSION 09.02.06 LANGUAGES CXX)
 
+set(larana_FW_DIR fw)
+
 find_package(cetmodules REQUIRED)
 find_package(canvas_root_io)
 find_package(art)
