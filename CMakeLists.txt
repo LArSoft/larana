@@ -57,7 +57,9 @@ add_subdirectory(larana)
 add_subdirectory(test)
 add_subdirectory(cmakeConfig)
 # ups - table and config files
-#add_subdirectory(ups)
+if(WANT_UPS)
+add_subdirectory(ups)
+endif()
 
 # packaging utility
 #include(UseCPack)
