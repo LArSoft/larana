@@ -1,10 +1,10 @@
 add_subdirectory(AssociationsTools)
 
 art_make(MODULE_LIBRARIES
-           ${ART_FRAMEWORK_SERVICES_REGISTRY}
-           ${ART_ROOT_IO_TFILESERVICE_SERVICE}
-           ${ART_ROOT_IO_TFILE_SUPPORT}
-           ${MF_MESSAGELOGGER}
+           art::Framework_Services_Registry
+           art_root_io::TFileService_service
+           art_root_io::tfile_support
+           messagefacility::MF_MessageLogger
            ROOT::Core
            ROOT::Hist
            ROOT::Physics

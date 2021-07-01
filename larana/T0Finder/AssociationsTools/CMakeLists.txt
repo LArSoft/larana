@@ -2,10 +2,10 @@ cet_enable_asserts()
 
 art_make(
   TOOL_LIBRARIES
-    ${ART_FRAMEWORK_PRINCIPAL}
-    ${ART_FRAMEWORK_SERVICES_REGISTRY}
-    ${ART_PERSISTENCY_PROVENANCE}
-    ${MF_MESSAGELOGGER}
+    art::Framework_Principal
+    art::Framework_Services_Registry
+    art::Persistency_Provenance
+    messagefacility::MF_MessageLogger
     ROOT::Core
     canvas
     larcorealg_Geometry
