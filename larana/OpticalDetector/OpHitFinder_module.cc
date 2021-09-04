@@ -99,7 +99,7 @@ namespace opdet {
     for (auto const& ch :
          pset.get<std::vector<unsigned int>>("ChannelMasks", std::vector<unsigned int>()))
       fChannelMasks.insert(ch);
-
+    std::cout<<"ChannelMasks set? ... " << (fChannelMasks.size() > 0 ? "yes" : "no") << std::endl;
     fHitThreshold = pset.get<float>("HitThreshold");
     bool useCalibrator = pset.get<bool>("UseCalibrator", false);
 
@@ -235,6 +235,7 @@ namespace opdet {
         //                      wfHandle->begin(), wfHandle->end());
         for (auto const& wf : *wfHandle) {
           if (fChannelMasks.find(wf.ChannelNumber()) != fChannelMasks.end()) continue;
+	  std::cout<<"Analyzing channel " << wf.ChannelNumber() << std::endl;
           WaveformVector.push_back(wf);
         }
       }

@@ -59,6 +59,9 @@ namespace pmtana
     float _ped_range_max; ///< Max value of adc to consider adc as 'sane'
     float _ped_range_min; ///< Min value of adc to consider adc as 'sane'
 
+    bool _catch_saturation; ///< Catch saturated ADC value (=0) and avoid using it for a pedestal estimation
+    int _sat_range_min;     ///< ADC range minimum to identify a saturation range
+    int _sat_range_max;     ///< ADC range maximum to identify a saturation range
     bool _verbose;        ///< For debugging
     int _n_wf_to_csvfile; ///< If greater than zero saves firsts waveforms with pedestal to csv file
     int _wf_saved = 0;

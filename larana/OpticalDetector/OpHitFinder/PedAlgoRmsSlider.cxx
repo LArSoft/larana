@@ -31,15 +31,20 @@ namespace pmtana{
   {
 
     _sample_size     = pset.get<size_t>("SampleSize",       7    );
+    _catch_saturation= pset.get<bool>  ("CatchSaturation",  false);
     _threshold       = pset.get<double>("Threshold",        0.6  );
     _max_sigma       = pset.get<float> ("MaxSigma",         0.5  );
     _ped_range_max   = pset.get<float> ("PedRangeMax",      2150 );
     _ped_range_min   = pset.get<float> ("PedRangeMin",      100  );
+    _sat_range_max   = pset.get<int>   ("SatRangeMax",100 );
+    _sat_range_min   = pset.get<int>   ("SatRangeMin",0   );
     _num_presample   = pset.get<int>   ("NumPreSample",     0    );
     _num_postsample  = pset.get<int>   ("NumPostSample",    0    );
     _verbose         = pset.get<bool>  ("Verbose",          true );
     _n_wf_to_csvfile = pset.get<int>   ("NWaveformsToFile", 12   );
-
+    if (_catch_saturation) {
+      std::cout << "Catching saturation enabled" << std::endl;
+    }
     if (_n_wf_to_csvfile > 0) {
       _csvfile.open ("wf_pedalgormsslider.csv", std::ofstream::out | std::ofstream::trunc);
       _csvfile << "n,time,wf,wf_ped_mean,wf_ped_rms" << std::endl;
@@ -135,13 +140,22 @@ namespace pmtana{
     // **********
     int last_good_index = -1;
     double local_mean, local_rms;
-    std::vector<double> local_mean_v(wf.size(),-1.);
-    std::vector<double> local_sigma_v(wf.size(),-1.);
+    size_t presample = _sample_size / 2;
+    size_t postsample = _sample_size - presample;
+    std::vector<double> local_mean_v(wf.size(),-1.);  // Below, value filled with >=0. is always a good pedestal
+    std::vector<double> local_sigma_v(wf.size(),-1.); // Below, value filled with >=0. is always a good pedestal
 
-    for (size_t i = 0; i < wf.size() - _sample_size; i++) {
+    for (size_t i = 0; i < wf.size() - postsample; i++) {
 
-      local_mean = mean(wf, i, _sample_size);
-      local_rms  = std(wf, local_mean, i, _sample_size);
+      if(_catch_saturation && wf[i] >= _sat_range_min && wf[i] <= _sat_range_max)
+	continue;
+
+      size_t start_i = i;
+      if(i >= presample) start_i = i - presample;
+      if((i+postsample) > wf.size()) start_i = wf.size() - postsample;
+
+      local_mean = mean(wf, start_i, _sample_size);
+      local_rms  = std(wf, local_mean, start_i, _sample_size);
 
       if(_verbose) std::cout << "\033[93mPedAlgoRmsSlider\033[00m: i " << i 
 			     << "  local_mean: " << local_mean 
@@ -158,6 +172,7 @@ namespace pmtana{
                     << " last good index was: " << last_good_index
                     << std::endl;
 
+	last_good_index = i;
       }
     }
 
@@ -170,6 +185,7 @@ namespace pmtana{
 	// good pedestal!
 
         if( ( last_good_index + 1 ) < (int)i ) {
+
 	  // finished the gap. try interpolation
 	  // 0) find where to start/end interpolation
 	  int start_tick  = last_good_index;
@@ -188,6 +204,8 @@ namespace pmtana{
           //this should become generic interpolation function, for now lets leave.
           float slope = (local_mean_v[end_tick] - local_mean_v[start_tick]) / (float(end_tick - start_tick));
 
+	  if(_verbose)
+	    std::cout << "Filling a gap " << start_tick << " => " << end_tick << " with a slope " << slope << std::endl;
           for(int j = start_tick + 1; j < end_tick; ++j) {
             mean_temp_v[j]  = slope * ( float(j - start_tick) ) + local_mean_v[start_tick];
             // for sigma, put either the sigma in the region before the pulse or
@@ -284,18 +302,19 @@ namespace pmtana{
 
       for (size_t i = 1; i < wf.size() - _sample_size; i++) {
 
-        local_mean = mean(wf, i, _sample_size);
-        local_rms  = std(wf, local_mean, i, _sample_size);
-
-        if (local_rms < _threshold) {
+	if(local_mean_v[i] > -0.1) {
 
           end_found = true;
 
           for (size_t j = 0; j < i; j++){
-            mean_temp_v[j] = local_mean;
-            sigma_v[j] = local_rms;
+            mean_temp_v[j] = local_mean_v[i];
+            sigma_v[j] = local_sigma_v[i];
             ped_interapolated[j] = true;
           }
+	  if(_verbose) {
+	    std::cout << "The waveform start has a pulse. Pedestal from " << i 
+		      << " (mean " << local_mean_v[i] << " std " << local_sigma_v[i] << " extended back to the start" << std::endl;
+	  }
           break;
         }
       }
@@ -306,6 +325,8 @@ namespace pmtana{
         return false;
       }
 
+    } else if (_verbose) {
+      std::cout << "The waveform start has a good mean and rms " << local_mean << " +/- " << local_rms << std::endl;
     }
 
 
@@ -320,18 +341,20 @@ namespace pmtana{
 
       size_t i = wf.size() - 1 - _sample_size;
       while (i-- > 0) {
-        local_mean = mean(wf, i, _sample_size);
-        local_rms  = std(wf, local_mean, i, _sample_size);
 
-        if (local_rms < _threshold) {
+	if (local_mean_v[i] > -0.1) {
 
           start_found = true;
 
           for (size_t j = wf.size()-1; j > i; j--){
-            mean_temp_v[j] = local_mean;
-            sigma_v[j] = local_rms;
+            mean_temp_v[j] = local_mean_v[i];
+            sigma_v[j] = local_sigma_v[i];
             ped_interapolated[j] = true;
           }
+	  if(_verbose) {
+	    std::cout << "The waveform end has a pulse. Pedestal from " << i 
+		      << " (mean " << local_mean_v[i] << " std " << local_sigma_v[i] << " extended to the end " << wf.size()-1 << std::endl;
+	  }
           break;
         }
       }
@@ -342,6 +365,8 @@ namespace pmtana{
         return false;
       }
 
+    } else if (_verbose) {
+      std::cout << "The waveform end has a good mean and rms " << local_mean << " +/- " << local_rms << std::endl;
     }
 
 
