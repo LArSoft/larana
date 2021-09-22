@@ -7,6 +7,8 @@
 #include "larana/OpticalDetector/MicrobooneOpDetResponse.h"
 #include "lardataobj/Simulation/SimPhotons.h"
 
+#include "art/Framework/Services/Registry/ServiceDefinitionMacros.h"
+
 namespace opdet{
 
 

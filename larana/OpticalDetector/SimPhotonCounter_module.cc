@@ -325,7 +325,8 @@ namespace opdet {
     fstepPositions.clear();
     fstepTimes.clear();
     if (fMakeLightAnalysisTree) {
-      mcpartVec = evt.getPointerByLabel<std::vector<simb::MCParticle>>("largeant");
+      //mcpartVec = evt.getPointerByLabel<std::vector<simb::MCParticle>>("largeant");
+      mcpartVec = evt.getHandle<std::vector<simb::MCParticle>>("largeant").product();
 
       size_t maxNtracks = 1000U; // mcpartVec->size(); --- { to be fixed soon! ]
       fSignals_vuv.clear();
@@ -390,8 +391,9 @@ namespace opdet {
       fCountEventDetected=0;
 
       //Get *ALL* SimPhotonsCollection from Event
-      std::vector< art::Handle< std::vector< sim::SimPhotons > > > photon_handles;
-      evt.getManyByType(photon_handles);
+      //std::vector< art::Handle< std::vector< sim::SimPhotons > > > photon_handles;
+      //evt.getManyByType(photon_handles);
+      auto photon_handles = evt.getMany<std::vector<sim::SimPhotons>>();
       if (photon_handles.size() == 0)
         throw art::Exception(art::errors::ProductNotFound)<<"sim SimPhotons retrieved and you requested them.";
 
@@ -603,8 +605,9 @@ namespace opdet {
     {
 
       //Get *ALL* SimPhotonsCollection from Event
-      std::vector< art::Handle< std::vector< sim::SimPhotonsLite > > > photon_handles;
-      evt.getManyByType(photon_handles);
+      //std::vector< art::Handle< std::vector< sim::SimPhotonsLite > > > photon_handles;
+      //evt.getManyByType(photon_handles);
+      auto photon_handles = evt.getMany<std::vector<sim::SimPhotonsLite>>();
       if (photon_handles.size() == 0)
         throw art::Exception(art::errors::ProductNotFound)<<"sim SimPhotons retrieved and you requested them.";
 

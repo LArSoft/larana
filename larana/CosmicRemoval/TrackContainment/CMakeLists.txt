@@ -1,8 +1,8 @@
 art_make(
   LIB_LIBRARIES
-    ${FHICLCPP}
+    fhiclcpp::fhiclcpp
     ROOT::Core
-    cetlib_except
+    cetlib_except::cetlib_except
     larcorealg_Geometry
     lardataobj_AnalysisBase
     lardataobj_RecoBase

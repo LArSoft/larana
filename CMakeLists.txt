@@ -6,9 +6,9 @@
 #  buildtool [-I /install/path] -bt[i] -jN
 # ======================================================================
 
-cmake_minimum_required (VERSION 3.12...3.18 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.19 FATAL_ERROR)
 
-project(larana LANGUAGES CXX)
+project(larana VERSION 09.03.00 LANGUAGES CXX)
 
 # cetbuildtools contains our cmake modules
 find_package(cetbuildtools REQUIRED)
@@ -48,6 +48,8 @@ find_ups_product( eigen )
 include(ArtDictionary)
 include(ArtMake)
 include(BuildPlugins)
+
+include_directories( $ENV{EIGEN_INC} )
 
 # source
 add_subdirectory(larana)

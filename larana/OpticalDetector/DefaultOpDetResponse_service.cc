@@ -4,7 +4,7 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-
+#include "art/Framework/Services/Registry/ServiceDefinitionMacros.h"
 #include "larana/OpticalDetector/DefaultOpDetResponse.h"
 #include "lardata/DetectorInfoServices/LArPropertiesService.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"

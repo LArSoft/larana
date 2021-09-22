@@ -1,13 +1,13 @@
 art_make(
   LIB_LIBRARIES
-    ${ART_FRAMEWORK_PRINCIPAL}
-    ${ART_FRAMEWORK_SERVICES_REGISTRY}
+    art::Framework_Principal
+    art::Framework_Services_Registry
     ${ART_PERSISTENCY_PROVENANCE}
-    ${ART_ROOT_IO_TFILESERVICE_SERVICE}
-    ${ART_ROOT_IO_TFILE_SUPPORT}
-    art_Utilities
-    ${FHICLCPP}
-    ${MF_MESSAGELOGGER}
+    art_root_io::TFileService_service
+    art_root_io::tfile_support
+    art::Utilities
+    fhiclcpp::fhiclcpp
+    messagefacility::MF_MessageLogger
     ROOT::Core
     ROOT::Hist
     ROOT::MathCore
@@ -15,9 +15,9 @@ art_make(
     ROOT::RIO
     ROOT::TMVA
     ROOT::Tree
-    canvas
-    cetlib
-    cetlib_except
+    canvas::canvas
+    cetlib::cetlib
+    cetlib_except::cetlib_except
     larcorealg_Geometry
     lardataobj_AnalysisBase
     larreco_Calorimetry
