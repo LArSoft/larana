@@ -40,9 +40,9 @@ namespace pmtana{
     _sat_range_min   = pset.get<int>   ("SatRangeMin",0   );
     _num_presample   = pset.get<int>   ("NumPreSample",     0    );
     _num_postsample  = pset.get<int>   ("NumPostSample",    0    );
-    _verbose         = pset.get<bool>  ("Verbose",          true );
+    _verbose         = pset.get<bool>  ("Verbose",          false);
     _n_wf_to_csvfile = pset.get<int>   ("NWaveformsToFile", 12   );
-    if (_catch_saturation) {
+    if (_catch_saturation && _verbose) {
       std::cout << "Catching saturation enabled" << std::endl;
     }
     if (_n_wf_to_csvfile > 0) {
