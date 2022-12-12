@@ -11,6 +11,7 @@
  */
 
 #include "larana/OpticalDetector/OpHitFinder/PMTPulseRecoBase.h"
+#include "larcorealg/Geometry/fwd.h"
 #include "lardataobj/RawData/OpDetWaveform.h"
 #include "lardataobj/RecoBase/OpHit.h"
 
@@ -22,9 +23,6 @@ namespace calib {
 namespace detinfo {
   class DetectorClocksData;
 }
-namespace geo {
-  class GeometryCore;
-}
 namespace pmtana {
   class PulseRecoManager;
 }
@@ -35,7 +33,7 @@ namespace opdet {
                     std::vector<recob::OpHit>&,
                     pmtana::PulseRecoManager const&,
                     pmtana::PMTPulseRecoBase const&,
-                    geo::GeometryCore const&,
+                    geo::WireReadoutGeom const&,
                     float,
                     detinfo::DetectorClocksData const&,
                     calib::IPhotonCalibrator const&,

@@ -15,6 +15,7 @@
 
 #include "larana/OpticalDetector/OpDigiProperties.h"
 #include "larcore/Geometry/Geometry.h"
+#include "larcore/Geometry/WireReadout.h"
 #include "larcorealg/Geometry/GeometryCore.h"
 #include "larcorealg/Geometry/OpDetGeo.h"
 #include "lardataalg/DetectorInfo/LArProperties.h"
@@ -72,8 +73,8 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunCompatibilityCheck(
   phot::PhotonVisibilityService const& pvs,
   opdet::OpDigiProperties const& opdigip)
 {
-
-  auto const& geom = *(providers.get<geo::GeometryCore>());
+  auto const& geom = *providers.get<geo::GeometryCore>();
+  auto const& wireReadoutGeom = art::ServiceHandle<geo::WireReadout const>()->Get();
 
   std::vector<const recob::OpFlash*> flashesOnBeamTime;
   for (auto const& flash : flashVector) {
@@ -112,12 +113,14 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunCompatibilityCheck(
     //check compatibility with beam flash
     bool compatible = false;
     for (const recob::OpFlash* flashPointer : flashesOnBeamTime) {
-      CompatibilityResultType result = CheckCompatibility(lightHypothesis, flashPointer, geom);
+      CompatibilityResultType result =
+        CheckCompatibility(lightHypothesis, flashPointer, geom, wireReadoutGeom);
       if (result == CompatibilityResultType::kCompatible) compatible = true;
       if (DEBUG_FLAG) {
         PrintTrackProperties(track);
         PrintFlashProperties(*flashPointer);
-        PrintHypothesisFlashComparison(lightHypothesis, flashPointer, geom, result);
+        PrintHypothesisFlashComparison(
+          lightHypothesis, flashPointer, geom, wireReadoutGeom, result);
       }
     }
 
@@ -139,8 +142,8 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunHypothesisComparison(
   phot::PhotonVisibilityService const& pvs,
   opdet::OpDigiProperties const& opdigip)
 {
-
   auto const& geom = *(providers.get<geo::GeometryCore>());
+  auto const& wireReadoutGeom = art::ServiceHandle<geo::WireReadout const>()->Get();
 
   cFlashComparison_p.run = run;
   cFlashComparison_p.event = event;
@@ -189,9 +192,9 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunHypothesisComparison(
     for (auto flash : flashesOnBeamTime) {
       cOpDetVector_flash = std::vector<float>(geom.NOpDets(), 0);
       cFlashComparison_p.flash_nOpDet = 0;
-      for (size_t c = 0; c <= geom.MaxOpChannel(); c++) {
-        if (geom.IsValidOpChannel(c)) {
-          unsigned int OpDet = geom.OpDetFromOpChannel(c);
+      for (size_t c = 0; c <= wireReadoutGeom.MaxOpChannel(); c++) {
+        if (wireReadoutGeom.IsValidOpChannel(c)) {
+          unsigned int OpDet = wireReadoutGeom.OpDetFromOpChannel(c);
           cOpDetVector_flash[OpDet] += flash.second->PE(c);
         }
       }
@@ -223,8 +226,8 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunHypothesisComparison(
   phot::PhotonVisibilityService const& pvs,
   opdet::OpDigiProperties const& opdigip)
 {
-
   auto const& geom = *(providers.get<geo::GeometryCore>());
+  auto const& wireReadoutGeom = art::ServiceHandle<geo::WireReadout const>()->Get();
 
   cFlashComparison_p.run = run;
   cFlashComparison_p.event = event;
@@ -284,10 +287,9 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunHypothesisComparison(
     for (auto flash : flashesOnBeamTime) {
       cOpDetVector_flash = std::vector<float>(geom.NOpDets(), 0);
       cFlashComparison_p.flash_nOpDet = 0;
-      //for(size_t c=0; c<geom.NOpChannels(); c++){
-      for (size_t c = 0; c <= geom.MaxOpChannel(); c++) {
-        if (geom.IsValidOpChannel(c)) {
-          unsigned int OpDet = geom.OpDetFromOpChannel(c);
+      for (size_t c = 0; c <= wireReadoutGeom.MaxOpChannel(); c++) {
+        if (wireReadoutGeom.IsValidOpChannel(c)) {
+          unsigned int OpDet = wireReadoutGeom.OpDetFromOpChannel(c);
           cOpDetVector_flash[OpDet] += flash.second->PE(c);
         }
       }
@@ -302,11 +304,9 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunHypothesisComparison(
 
       cFlashComparison_p.chi2 = CalculateChi2(cOpDetVector_flash, cOpDetVector_hyp);
 
-      //cOpDetHist_flash->SetBins(cOpDetVector_flash.size(),0,cOpDetVector_flash.size());
       for (size_t i = 0; i < cOpDetVector_flash.size(); i++)
         cOpDetHist_flash->SetBinContent(i + 1, cOpDetVector_flash[i]);
 
-      //cOpDetHist_hyp->SetBins(cOpDetVector_hyp.size(),0,cOpDetVector_hyp.size());
       for (size_t i = 0; i < cOpDetVector_hyp.size(); i++)
         cOpDetHist_hyp->SetBinContent(i + 1, cOpDetVector_hyp[i]);
 
@@ -358,9 +358,10 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::FillFlashProperties(
 bool cosmic::BeamFlashTrackMatchTaggerAlg::InDetector(TVector3 const& pt,
                                                       geo::GeometryCore const& geom)
 {
-  if (pt.x() < 0 || pt.x() > 2 * geom.DetHalfWidth()) return false;
-  if (std::abs(pt.y()) > geom.DetHalfHeight()) return false;
-  if (pt.z() < 0 || pt.z() > geom.DetLength()) return false;
+  auto const& tpc = geom.TPC({0, 0});
+  if (pt.x() < 0 || pt.x() > 2 * tpc.HalfWidth()) return false;
+  if (std::abs(pt.y()) > tpc.HalfHeight()) return false;
+  if (pt.z() < 0 || pt.z() > tpc.Length()) return false;
   return true;
 }
 
@@ -369,7 +370,8 @@ bool cosmic::BeamFlashTrackMatchTaggerAlg::InDriftWindow(double start_x,
                                                          geo::GeometryCore const& geom)
 {
   if (start_x < 0. || end_x < 0.) return false;
-  if (start_x > 2 * geom.DetHalfWidth() || end_x > 2 * geom.DetHalfWidth()) return false;
+  auto const& tpc = geom.TPC({0, 0});
+  if (start_x > 2 * tpc.HalfWidth() || end_x > 2 * tpc.HalfWidth()) return false;
   return true;
 }
 
@@ -383,7 +385,6 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::AddLightFromSegment(
   float const& PromptMIPScintYield,
   float XOffset)
 {
-
   double xyz_segment[3];
   xyz_segment[0] = 0.5 * (pt2.x() + pt1.x()) + XOffset;
   xyz_segment[1] = 0.5 * (pt2.y() + pt1.y());
@@ -497,19 +498,20 @@ std::vector<float> cosmic::BeamFlashTrackMatchTaggerAlg::GetMIPHypotheses(
 //   improve performance of this algorithm.
 //---------------------------------------
 cosmic::BeamFlashTrackMatchTaggerAlg::CompatibilityResultType
-cosmic::BeamFlashTrackMatchTaggerAlg::CheckCompatibility(std::vector<float> const& lightHypothesis,
-                                                         const recob::OpFlash* flashPointer,
-                                                         geo::GeometryCore const& geom)
+cosmic::BeamFlashTrackMatchTaggerAlg::CheckCompatibility(
+  std::vector<float> const& lightHypothesis,
+  const recob::OpFlash* flashPointer,
+  geo::GeometryCore const& geom,
+  geo::WireReadoutGeom const& wireReadoutGeom)
 {
   float hypothesis_integral = 0;
   float flash_integral = 0;
   unsigned int cumulativeChannels = 0;
 
   std::vector<double> PEbyOpDet(geom.NOpDets(), 0);
-  //for (unsigned int c = 0; c < geom.NOpChannels(); c++){
-  for (unsigned int c = 0; c <= geom.MaxOpChannel(); c++) {
-    if (geom.IsValidOpChannel(c)) {
-      unsigned int o = geom.OpDetFromOpChannel(c);
+  for (unsigned int c = 0; c <= wireReadoutGeom.MaxOpChannel(); c++) {
+    if (wireReadoutGeom.IsValidOpChannel(c)) {
+      unsigned int o = wireReadoutGeom.OpDetFromOpChannel(c);
       PEbyOpDet[o] += flashPointer->PE(c);
     }
   }
@@ -545,7 +547,6 @@ cosmic::BeamFlashTrackMatchTaggerAlg::CheckCompatibility(std::vector<float> cons
 float cosmic::BeamFlashTrackMatchTaggerAlg::CalculateChi2(std::vector<float> const& light_flash,
                                                           std::vector<float> const& light_track)
 {
-
   float chi2 = 0;
   for (size_t pmt_i = 0; pmt_i < light_flash.size(); pmt_i++) {
 
@@ -601,10 +602,10 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::PrintHypothesisFlashComparison(
   std::vector<float> const& lightHypothesis,
   const recob::OpFlash* flashPointer,
   geo::GeometryCore const& geom,
+  geo::WireReadoutGeom const& wireReadoutGeom,
   CompatibilityResultType result,
   std::ostream* output)
 {
-
   *output << "----------------------------------------------" << std::endl;
   *output << "Hypothesis-flash comparison: ";
 
@@ -615,10 +616,9 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::PrintHypothesisFlashComparison(
   if (fNormalizeHypothesisToFlash) hypothesis_scale = flashPointer->TotalPE();
 
   std::vector<double> PEbyOpDet(geom.NOpDets(), 0);
-  //for (unsigned int c = 0; c < geom.NOpChannels(); c++){
-  for (unsigned int c = 0; c <= geom.MaxOpChannel(); c++) {
-    if (geom.IsValidOpChannel(c)) {
-      unsigned int o = geom.OpDetFromOpChannel(c);
+  for (unsigned int c = 0; c <= wireReadoutGeom.MaxOpChannel(); c++) {
+    if (wireReadoutGeom.IsValidOpChannel(c)) {
+      unsigned int o = wireReadoutGeom.OpDetFromOpChannel(c);
       PEbyOpDet[o] += flashPointer->PE(c);
     }
   }

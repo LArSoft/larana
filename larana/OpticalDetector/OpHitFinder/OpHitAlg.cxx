@@ -14,7 +14,7 @@
 #include "OpHitAlg.h"
 
 #include "larana/OpticalDetector/OpHitFinder/PulseRecoManager.h"
-#include "larcorealg/Geometry/GeometryCore.h"
+#include "larcorealg/Geometry/WireReadoutGeom.h"
 #include "lardataalg/DetectorInfo/DetectorClocks.h"
 #include "lardataalg/DetectorInfo/ElecClock.h"
 #include "lardataobj/RawData/OpDetWaveform.h"
@@ -30,18 +30,16 @@ namespace opdet {
                     std::vector<recob::OpHit>& hitVector,
                     pmtana::PulseRecoManager const& pulseRecoMgr,
                     pmtana::PMTPulseRecoBase const& threshAlg,
-                    geo::GeometryCore const& geometry,
+                    geo::WireReadoutGeom const& wireReadoutGeom,
                     float hitThreshold,
                     detinfo::DetectorClocksData const& clocksData,
                     calib::IPhotonCalibrator const& calibrator,
                     bool use_start_time)
   {
-
     for (auto const& waveform : opDetWaveformVector) {
-
       const int channel = static_cast<int>(waveform.ChannelNumber());
 
-      if (!geometry.IsValidOpChannel(channel)) {
+      if (!wireReadoutGeom.IsValidOpChannel(channel)) {
         mf::LogError("OpHitFinder")
           << "Error! unrecognized channel number " << channel << ". Ignoring pulse";
         continue;
@@ -76,7 +74,6 @@ namespace opdet {
                     calib::IPhotonCalibrator const& calibrator,
                     bool use_start_time)
   {
-
     if (pulse.peak < hitThreshold) return;
 
     double absTime = timeStamp + clocksData.OpticalClock().TickPeriod() *

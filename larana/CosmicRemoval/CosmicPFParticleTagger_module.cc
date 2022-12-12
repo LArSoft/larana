@@ -55,16 +55,14 @@ private:
 
 cosmic::CosmicPFParticleTagger::CosmicPFParticleTagger(fhicl::ParameterSet const& p) : EDProducer{p}
 {
-
-  ////////  fSptalg  = new cosmic::SpacePointAlg(p.get<fhicl::ParameterSet>("SpacePointAlg"));
-  auto const* geo = lar::providerFrom<geo::Geometry>();
+  auto const& tpc = lar::providerFrom<geo::Geometry>()->TPC({0, 0});
   auto const clock_data = art::ServiceHandle<detinfo::DetectorClocksService const>()->DataForJob();
   auto const detp =
     art::ServiceHandle<detinfo::DetectorPropertiesService const>()->DataForJob(clock_data);
 
-  fDetHalfHeight = geo->DetHalfHeight();
-  fDetWidth = 2. * geo->DetHalfWidth();
-  fDetLength = geo->DetLength();
+  fDetHalfHeight = tpc.HalfHeight();
+  fDetWidth = 2. * tpc.HalfWidth();
+  fDetLength = tpc.Length();
 
   float fSamplingRate = sampling_rate(clock_data);
 
@@ -80,7 +78,7 @@ cosmic::CosmicPFParticleTagger::CosmicPFParticleTagger(fhicl::ParameterSet const
   const double driftVelocity = detp.DriftVelocity(detp.Efield(), detp.Temperature()); // cm/us
 
   fDetectorWidthTicks =
-    2 * geo->DetHalfWidth() / (driftVelocity * fSamplingRate / 1000); // ~3200 for uB
+    2 * tpc.HalfWidth() / (driftVelocity * fSamplingRate / 1000); // ~3200 for uB
   fMinTickDrift = clock_data.Time2Tick(clock_data.TriggerTime());
   fMaxTickDrift = fMinTickDrift + fDetectorWidthTicks + fEndTickPadding;
 

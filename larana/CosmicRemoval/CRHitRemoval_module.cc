@@ -131,7 +131,7 @@ CRHitRemoval::CRHitRemoval(fhicl::ParameterSet const& pset)
 /// Begin job method.
 void CRHitRemoval::beginJob()
 {
-  auto const* geo = lar::providerFrom<geo::Geometry>();
+  auto const& tpc = lar::providerFrom<geo::Geometry>()->TPC({0, 0});
   auto const clock_data = art::ServiceHandle<detinfo::DetectorClocksService const>()->DataForJob();
   auto const detp =
     art::ServiceHandle<detinfo::DetectorPropertiesService const>()->DataForJob(clock_data);
@@ -139,7 +139,7 @@ void CRHitRemoval::beginJob()
   float const samplingRate = sampling_rate(clock_data);
   float const driftVelocity = detp.DriftVelocity(detp.Efield(), detp.Temperature()); // cm/us
 
-  fDetectorWidthTicks = 2 * geo->DetHalfWidth() / (driftVelocity * samplingRate / 1000);
+  fDetectorWidthTicks = 2 * tpc.HalfWidth() / (driftVelocity * samplingRate / 1000);
   fMinTickDrift =
     clock_data.Time2Tick(clock_data.TriggerTime()); // this is the hardware trigger time
   fMaxTickDrift = fMinTickDrift + fDetectorWidthTicks + fEndTickPadding;

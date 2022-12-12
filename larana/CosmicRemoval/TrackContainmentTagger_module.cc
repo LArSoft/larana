@@ -5,6 +5,11 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
+#include "TrackContainment/TrackContainmentAlg.hh"
+#include "larcore/Geometry/Geometry.h"
+#include "larcore/Geometry/WireReadout.h"
+#include "lardata/Utilities/AssociationUtil.h"
+
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
@@ -13,10 +18,6 @@
 #include "fhiclcpp/ParameterSet.h"
 
 #include "TTree.h"
-
-#include "TrackContainment/TrackContainmentAlg.hh"
-#include "larcore/Geometry/Geometry.h"
-#include "lardata/Utilities/AssociationUtil.h"
 
 namespace trk {
   class TrackContainmentTagger;
@@ -67,7 +68,6 @@ trk::TrackContainmentTagger::TrackContainmentTagger(fhicl::ParameterSet const& p
 
 void trk::TrackContainmentTagger::produce(art::Event& e)
 {
-
   std::unique_ptr<std::vector<anab::CosmicTag>> cosmicTagTrackVector(
     new std::vector<anab::CosmicTag>);
   std::unique_ptr<art::Assns<recob::Track, anab::CosmicTag>> assnOutCosmicTagTrack(
@@ -85,7 +85,7 @@ void trk::TrackContainmentTagger::produce(art::Event& e)
   }
 
   art::ServiceHandle<geo::Geometry const> geoHandle;
-  fAlg.ProcessTracks(trackVectors, *geoHandle);
+  fAlg.ProcessTracks(trackVectors, *geoHandle, art::ServiceHandle<geo::WireReadout>()->Get());
 
   auto const& cosmicTags = fAlg.GetTrackCosmicTags();
 
@@ -93,8 +93,7 @@ void trk::TrackContainmentTagger::produce(art::Event& e)
     if (!fApplyTags[i_tc]) continue;
     for (size_t i_t = 0; i_t < fAlg.GetTrackCosmicTags()[i_tc].size(); ++i_t) {
       cosmicTagTrackVector->emplace_back(fAlg.GetTrackCosmicTags()[i_tc][i_t]);
-      util::CreateAssn(*this,
-                       e,
+      util::CreateAssn(e,
                        *cosmicTagTrackVector,
                        art::Ptr<recob::Track>(trackHandles[i_tc], i_t),
                        *assnOutCosmicTagTrack);

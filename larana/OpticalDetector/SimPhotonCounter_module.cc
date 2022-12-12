@@ -40,6 +40,7 @@
 // LArSoft includes
 #include "larana/OpticalDetector/OpDetResponseInterface.h"
 #include "larcore/Geometry/Geometry.h"
+#include "larcore/Geometry/WireReadout.h"
 #include "larcorealg/Geometry/CryostatGeo.h"
 #include "larcorealg/Geometry/OpDetGeo.h"
 #include "lardataobj/MCBase/MCTrack.h"
@@ -296,7 +297,6 @@ namespace opdet {
 
   void SimPhotonCounter::analyze(art::Event const& evt)
   {
-
     // Lookup event ID from event
     art::EventNumber_t event = evt.id().event();
     fEventID = Int_t(event);
@@ -305,7 +305,7 @@ namespace opdet {
     art::ServiceHandle<opdet::OpDetResponseInterface const> odresponse;
 
     // get the geometry to be able to figure out signal types and chan -> plane mappings
-    art::ServiceHandle<geo::Geometry const> geo;
+    auto const& wireReadoutGeom = art::ServiceHandle<geo::WireReadout const>()->Get();
 
     // GEANT4 info on the particles (only used if making light analysis tree)
     std::vector<simb::MCParticle> const* mcpartVec = nullptr;
@@ -315,7 +315,6 @@ namespace opdet {
     fstepPositions.clear();
     fstepTimes.clear();
     if (fMakeLightAnalysisTree) {
-      //mcpartVec = evt.getPointerByLabel<std::vector<simb::MCParticle>>("largeant");
       mcpartVec = evt.getHandle<std::vector<simb::MCParticle>>("largeant").product();
 
       size_t maxNtracks = 1000U; // mcpartVec->size(); --- { to be fixed soon! ]
@@ -324,8 +323,8 @@ namespace opdet {
       fSignals_vis.clear();
       fSignals_vis.resize(maxNtracks);
       for (size_t itrack = 0; itrack != maxNtracks; itrack++) {
-        fSignals_vuv[itrack].resize(geo->NOpChannels());
-        fSignals_vis[itrack].resize(geo->NOpChannels());
+        fSignals_vuv[itrack].resize(wireReadoutGeom.NOpChannels());
+        fSignals_vis[itrack].resize(wireReadoutGeom.NOpChannels());
       }
       totalEnergy_track.resize(maxNtracks, 0.);
       //-------------------------stimation of dedx per trackID----------------------
@@ -335,7 +334,6 @@ namespace opdet {
       // loop over all sim::SimChannels in the event and make sure there are no
       // sim::IDEs with trackID values that are not in the sim::ParticleList
       std::vector<const sim::SimChannel*> sccol;
-      //evt.getView(fG4ModuleLabel, sccol);
       for (auto const& mod : fInputModule) {
         evt.getView(mod, sccol);
         //loop over the sim channels collection
@@ -368,15 +366,12 @@ namespace opdet {
       fCountEventDetected = 0;
 
       //Get *ALL* SimPhotonsCollection from Event
-      //std::vector< art::Handle< std::vector< sim::SimPhotons > > > photon_handles;
-      //evt.getManyByType(photon_handles);
       auto photon_handles = evt.getMany<std::vector<sim::SimPhotons>>();
       if (photon_handles.size() == 0)
         throw art::Exception(art::errors::ProductNotFound)
           << "sim SimPhotons retrieved and you requested them.";
 
       for (auto const& mod : fInputModule) {
-        // sim::SimPhotonsCollection TheHitCollection = sim::SimListUtils::GetSimPhotonsCollection(evt,mod);
         //switching off to add reading in of labelled collections: Andrzej, 02/26/19
 
         for (auto const& ph_handle : photon_handles) {
@@ -392,7 +387,7 @@ namespace opdet {
               //resetting the signalt to save in the analysis tree per event
               const int maxNtracks = 1000;
               for (size_t itrack = 0; itrack != maxNtracks; itrack++) {
-                for (size_t pmt_i = 0; pmt_i != geo->NOpChannels(); pmt_i++) {
+                for (size_t pmt_i = 0; pmt_i != wireReadoutGeom.NOpChannels(); pmt_i++) {
                   fSignals_vuv[itrack][pmt_i].clear();
                   fSignals_vis[itrack][pmt_i].clear();
                 }
@@ -400,12 +395,10 @@ namespace opdet {
             }
           }
 
-          //      if(fVerbosity > 0) std::cout<<"Found OpDet hit collection of size "<< TheHitCollection.size()<<std::endl;
           if (fVerbosity > 0)
             std::cout << "Found OpDet hit collection of size " << (*ph_handle).size() << std::endl;
 
           if ((*ph_handle).size() > 0) {
-            //           for(sim::SimPhotonsCollection::const_iterator itOpDet=TheHitCollection.begin(); itOpDet!=TheHitCollection.end(); itOpDet++)
             for (auto const& itOpDet : (*ph_handle)) {
               //Reset Counters
               fCountOpDetAll = 0;
@@ -417,8 +410,6 @@ namespace opdet {
               //Get data from HitCollection entry
               fOpChannel = itOpDet.OpChannel();
               const sim::SimPhotons& TheHit = itOpDet;
-
-              //std::cout<<"OpDet " << fOpChannel << " has size " << TheHit.size()<<std::endl;
 
               // Loop through OpDet phots.
               //   Note we make the screen output decision outside the loop
@@ -585,8 +576,6 @@ namespace opdet {
     if (fUseLitePhotons) {
 
       //Get *ALL* SimPhotonsCollection from Event
-      //std::vector< art::Handle< std::vector< sim::SimPhotonsLite > > > photon_handles;
-      //evt.getManyByType(photon_handles);
       auto photon_handles = evt.getMany<std::vector<sim::SimPhotonsLite>>();
       if (photon_handles.size() == 0)
         throw art::Exception(art::errors::ProductNotFound)
@@ -594,9 +583,6 @@ namespace opdet {
 
       //Get SimPhotonsLite from Event
       for (auto const& mod : fInputModule) {
-        //art::Handle< std::vector<sim::SimPhotonsLite> > photonHandle;
-        //evt.getByLabel(mod, photonHandle);
-
         // Loop over direct/reflected photons
         for (auto const& ph_handle : photon_handles) {
           // Do some checking before we proceed
@@ -634,7 +620,6 @@ namespace opdet {
 
                 //Get arrival time from phot
                 fTime = it->first;
-                //std::cout<<"Arrival time: " << fTime<<std::endl;
 
                 for (int i = 0; i < it->second; i++) {
                   // Increment per OpDet counters and fill per phot trees
@@ -725,8 +710,5 @@ namespace opdet {
   // ---------------------------------------------------------------------------
 
 }
-namespace opdet {
 
-  DEFINE_ART_MODULE(SimPhotonCounter)
-
-} //end namespace opdet
+DEFINE_ART_MODULE(opdet::SimPhotonCounter)
