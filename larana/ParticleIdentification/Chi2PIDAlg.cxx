@@ -137,11 +137,11 @@ anab::ParticleID pid::Chi2PIDAlg::DoParticleID(
         double errdedx = 0.04231 + 0.0001783 * trkdedx[i] * trkdedx[i]; //resolution on dE/dx
         errdedx *= trkdedx[i];
 
-        double errdedx_square = errdedx*errdedx
-        chi2pro += pow((trkdedx[i] - bincpro), 2) / (binepro*binepro + errdedx_square);
-        chi2ka +=  pow((trkdedx[i] - bincka) , 2) / (bineka*bineka + errdedx_square);
-        chi2pi +=  pow((trkdedx[i] - bincpi) , 2) / (binepi*binepi + errdedx_square);
-        chi2mu +=  pow((trkdedx[i] - bincmu) , 2) / (binemu*binemu + errdedx_square);
+        double errdedx_square = errdedx * errdedx;
+        chi2pro += pow((trkdedx[i] - bincpro), 2) / (binepro * binepro + errdedx_square);
+        chi2ka += pow((trkdedx[i] - bincka), 2) / (bineka * bineka + errdedx_square);
+        chi2pi += pow((trkdedx[i] - bincpi), 2) / (binepi * binepi + errdedx_square);
+        chi2mu += pow((trkdedx[i] - bincmu), 2) / (binemu * binemu + errdedx_square);
 
         //std::cout<<i<<" "<<trkdedx[i]<<" "<<trkres[i]<<" "<<bincpro<<std::endl;
         ++npt;
