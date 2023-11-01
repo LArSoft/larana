@@ -6,7 +6,7 @@
 
 // LArSoft includes
 #include "larana/OpticalDetector/OpDigiProperties.h"
-#include "larcore/Geometry/Geometry.h"
+#include "larcore/Geometry/WireReadout.h"
 #include "lardataobj/RecoBase/OpHit.h"
 
 // Framework includes
@@ -109,7 +109,6 @@ namespace opdet {
   //-----------------------------------------------------------------------
   void OpHitAna::analyze(const art::Event& evt)
   {
-
     // Create a handle for our vector of pulses
     art::Handle<std::vector<recob::OpHit>> HitHandle;
 
@@ -123,8 +122,7 @@ namespace opdet {
     // histograms for us.
     art::ServiceHandle<art::TFileService const> tfs;
 
-    art::ServiceHandle<geo::Geometry const> geom;
-    int NOpChannels = geom->NOpChannels();
+    int NOpChannels = art::ServiceHandle<geo::WireReadout const>()->Get().NOpChannels();
 
     std::vector<TH1D*> HitHist;
 

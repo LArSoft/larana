@@ -9,13 +9,11 @@
  * These are the algorithms used by OpFlashFinder to produce flashes.
  */
 
+#include "larcorealg/Geometry/fwd.h"
 #include "lardataobj/RecoBase/OpFlash.h"
 #include "lardataobj/RecoBase/OpHit.h"
 namespace detinfo {
   class DetectorClocksData;
-}
-namespace geo {
-  class GeometryCore;
 }
 
 #include <functional>
@@ -29,6 +27,7 @@ namespace opdet {
                       std::vector<std::vector<int>>&,
                       double,
                       geo::GeometryCore const&,
+                      geo::WireReadoutGeom const&,
                       float,
                       float,
                       detinfo::DetectorClocksData const&,
@@ -104,6 +103,7 @@ namespace opdet {
                       std::vector<recob::OpHit> const& HitVector,
                       std::vector<recob::OpFlash>& FlashVector,
                       geo::GeometryCore const& geom,
+                      geo::WireReadoutGeom const& wireReadoutGeom,
                       detinfo::DetectorClocksData const& data,
                       float TrigCoinc);
 
@@ -118,6 +118,7 @@ namespace opdet {
 
   void GetHitGeometryInfo(recob::OpHit const& currentHit,
                           geo::GeometryCore const& geom,
+                          geo::WireReadoutGeom const& wireReadoutGeom,
                           std::vector<double>& sumw,
                           std::vector<double>& sumw2,
                           double& sumy,

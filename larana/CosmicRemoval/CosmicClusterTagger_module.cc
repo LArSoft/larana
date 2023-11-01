@@ -47,7 +47,7 @@ private:
 
 cosmic::CosmicClusterTagger::CosmicClusterTagger(fhicl::ParameterSet const& p) : EDProducer{p}
 {
-  auto const* geo = lar::providerFrom<geo::Geometry>();
+  auto const& tpc = lar::providerFrom<geo::Geometry>()->TPC({0, 0});
 
   auto const clock_data = art::ServiceHandle<detinfo::DetectorClocksService const>()->DataForJob();
   auto const detp =
@@ -57,8 +57,7 @@ cosmic::CosmicClusterTagger::CosmicClusterTagger(fhicl::ParameterSet const& p) :
   fTickLimit = p.get<int>("TickLimit", 0);
   const double driftVelocity = detp.DriftVelocity(detp.Efield(), detp.Temperature()); // cm/us
 
-  fDetectorWidthTicks =
-    2 * geo->DetHalfWidth() / (driftVelocity * samplingRate / 1000); // ~3200 for uB
+  fDetectorWidthTicks = 2 * tpc.HalfWidth() / (driftVelocity * samplingRate / 1000); // ~3200 for uB
   fMinTickDrift = p.get("MinTickDrift", 3200);
   fMaxTickDrift = fMinTickDrift + fDetectorWidthTicks;
 

@@ -17,6 +17,7 @@
 
 #include "larcorealg/Geometry/GeometryCore.h"
 #include "larcorealg/Geometry/OpDetGeo.h"
+#include "larcorealg/Geometry/WireReadoutGeom.h"
 #include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
 #include "lardataalg/DetectorInfo/DetectorClocks.h"
 #include "lardataalg/DetectorInfo/ElecClock.h"
@@ -62,6 +63,7 @@ namespace opdet {
                       std::vector<std::vector<int>>& AssocList,
                       double const BinWidth,
                       geo::GeometryCore const& geom,
+                      geo::WireReadoutGeom const& wireReadoutGeom,
                       float const FlashThreshold,
                       float const WidthTolerance,
                       detinfo::DetectorClocksData const& ClocksData,
@@ -128,8 +130,6 @@ namespace opdet {
     // First, need vector to keep track of which hits belong to which flashes
     std::vector<std::vector<int>> HitsPerFlash;
 
-    //if (Frame == 1) writeHistogram(Binned1);
-
     AssignHitsToFlash(FlashesInAccumulator1,
                       FlashesInAccumulator2,
                       Binned1,
@@ -151,7 +151,8 @@ namespace opdet {
     // Now we have all our hits assigned to a flash.
     // Make the recob::OpFlash objects
     for (auto const& HitsPerFlashVec : RefinedHitsPerFlash)
-      ConstructFlash(HitsPerFlashVec, HitVector, FlashVector, geom, ClocksData, TrigCoinc);
+      ConstructFlash(
+        HitsPerFlashVec, HitVector, FlashVector, geom, wireReadoutGeom, ClocksData, TrigCoinc);
 
     RemoveLateLight(FlashVector, RefinedHitsPerFlash);
 
@@ -467,6 +468,7 @@ namespace opdet {
   //----------------------------------------------------------------------------
   void GetHitGeometryInfo(recob::OpHit const& currentHit,
                           geo::GeometryCore const& geom,
+                          geo::WireReadoutGeom const& wireReadoutGeom,
                           std::vector<double>& sumw,
                           std::vector<double>& sumw2,
                           double& sumy,
@@ -474,16 +476,16 @@ namespace opdet {
                           double& sumz,
                           double& sumz2)
   {
-    auto const xyz = geom.OpDetGeoFromOpChannel(currentHit.OpChannel()).GetCenter();
+    auto const xyz = wireReadoutGeom.OpDetGeoFromOpChannel(currentHit.OpChannel()).GetCenter();
     double PEThisHit = currentHit.PE();
 
     geo::TPCID tpc = geom.FindTPCAtPosition(xyz);
     // if the point does not fall into any TPC,
     // it does not contribute to the average wire position
     if (tpc.isValid) {
-      for (size_t p = 0; p != geom.Nplanes(); ++p) {
+      for (size_t p = 0; p != wireReadoutGeom.Nplanes(); ++p) {
         geo::PlaneID const planeID(tpc, p);
-        unsigned int w = geom.NearestWireID(xyz, planeID).Wire;
+        unsigned int w = wireReadoutGeom.Plane(planeID).NearestWireID(xyz).Wire;
         sumw.at(p) += PEThisHit * w;
         sumw2.at(p) += PEThisHit * w * w;
       }
@@ -508,14 +510,15 @@ namespace opdet {
                       std::vector<recob::OpHit> const& HitVector,
                       std::vector<recob::OpFlash>& FlashVector,
                       geo::GeometryCore const& geom,
+                      geo::WireReadoutGeom const& wireReadoutGeom,
                       detinfo::DetectorClocksData const& ClocksData,
                       float const TrigCoinc)
   {
     double MaxTime = -std::numeric_limits<double>::max();
     double MinTime = std::numeric_limits<double>::max();
 
-    std::vector<double> PEs(geom.MaxOpChannel() + 1, 0.0);
-    unsigned int Nplanes = geom.Nplanes();
+    std::vector<double> PEs(wireReadoutGeom.MaxOpChannel() + 1, 0.0);
+    unsigned int Nplanes = wireReadoutGeom.Nplanes();
     std::vector<double> sumw(Nplanes, 0.0);
     std::vector<double> sumw2(Nplanes, 0.0);
 
@@ -531,7 +534,8 @@ namespace opdet {
     for (auto const& HitID : HitsPerFlashVec) {
       AddHitContribution(
         HitVector.at(HitID), MaxTime, MinTime, AveTime, FastToTotal, AveAbsTime, TotalPE, PEs);
-      GetHitGeometryInfo(HitVector.at(HitID), geom, sumw, sumw2, sumy, sumy2, sumz, sumz2);
+      GetHitGeometryInfo(
+        HitVector.at(HitID), geom, wireReadoutGeom, sumw, sumw2, sumy, sumy2, sumz, sumz2);
     }
 
     AveTime /= TotalPE;

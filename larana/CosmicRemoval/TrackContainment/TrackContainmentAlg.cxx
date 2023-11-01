@@ -1,11 +1,12 @@
 #include "TrackContainmentAlg.hh"
+#include "larcorealg/Geometry/GeometryCore.h"
+#include "larcorealg/Geometry/WireReadoutGeom.h"
 
 #include "fhiclcpp/ParameterSet.h"
-#include "larcorealg/Geometry/GeometryCore.h"
-
-#include <iostream>
 
 #include "TTree.h"
+
+#include <iostream>
 
 trk::TrackContainmentAlg::TrackContainmentAlg() {}
 
@@ -36,20 +37,19 @@ void trk::TrackContainmentAlg::Configure(fhicl::ParameterSet const& p)
 
 bool trk::TrackContainmentAlg::IsContained(recob::Track const& track, geo::GeometryCore const& geo)
 {
-  if (track.Vertex().Z() < (0 + fZBuffer) || track.Vertex().Z() > (geo.DetLength() - fZBuffer))
+  auto const& tpc = geo.TPC({0, 0});
+  if (track.Vertex().Z() < (0 + fZBuffer) || track.Vertex().Z() > (tpc.Length() - fZBuffer))
     return false;
-  if (track.End().Z() < (0 + fZBuffer) || track.End().Z() > (geo.DetLength() - fZBuffer))
+  if (track.End().Z() < (0 + fZBuffer) || track.End().Z() > (tpc.Length() - fZBuffer)) return false;
+  if (track.Vertex().Y() < (-1 * tpc.HalfHeight() + fYBuffer) ||
+      track.Vertex().Y() > (tpc.HalfHeight() - fYBuffer))
     return false;
-  if (track.Vertex().Y() < (-1 * geo.DetHalfHeight() + fYBuffer) ||
-      track.Vertex().Y() > (geo.DetHalfHeight() - fYBuffer))
+  if (track.End().Y() < (-1 * tpc.HalfHeight() + fYBuffer) ||
+      track.End().Y() > (tpc.HalfHeight() - fYBuffer))
     return false;
-  if (track.End().Y() < (-1 * geo.DetHalfHeight() + fYBuffer) ||
-      track.End().Y() > (geo.DetHalfHeight() - fYBuffer))
+  if (track.Vertex().X() < (0 + fXBuffer) || track.Vertex().X() > (2 * tpc.HalfWidth() - fXBuffer))
     return false;
-  if (track.Vertex().X() < (0 + fXBuffer) ||
-      track.Vertex().X() > (2 * geo.DetHalfWidth() - fXBuffer))
-    return false;
-  if (track.End().X() < (0 + fXBuffer) || track.End().X() > (2 * geo.DetHalfWidth() - fXBuffer))
+  if (track.End().X() < (0 + fXBuffer) || track.End().X() > (2 * tpc.HalfWidth() - fXBuffer))
     return false;
 
   return true;
@@ -58,20 +58,21 @@ bool trk::TrackContainmentAlg::IsContained(recob::Track const& track, geo::Geome
 anab::CosmicTagID_t trk::TrackContainmentAlg::GetCosmicTagID(recob::Track const& track,
                                                              geo::GeometryCore const& geo)
 {
+  auto const& tpc = geo.TPC({0, 0});
 
   auto id = anab::CosmicTagID_t::kNotTagged;
 
-  if (track.Vertex().Z() < (0 + fZBuffer) || track.Vertex().Z() > (geo.DetLength() - fZBuffer))
+  if (track.Vertex().Z() < (0 + fZBuffer) || track.Vertex().Z() > (tpc.Length() - fZBuffer))
     id = anab::CosmicTagID_t::kGeometry_Z;
-  else if (track.Vertex().Y() < (-1 * geo.DetHalfHeight() + fYBuffer) ||
-           track.Vertex().Y() > (geo.DetHalfHeight() - fYBuffer))
+  else if (track.Vertex().Y() < (-1 * tpc.HalfHeight() + fYBuffer) ||
+           track.Vertex().Y() > (tpc.HalfHeight() - fYBuffer))
     id = anab::CosmicTagID_t::kGeometry_Y;
   else if ((track.Vertex().X() > 0 && track.Vertex().X() < (0 + fXBuffer)) ||
-           (track.Vertex().X() < 2 * geo.DetHalfWidth() &&
-            track.Vertex().X() > (2 * geo.DetHalfWidth() - fXBuffer)))
+           (track.Vertex().X() < 2 * tpc.HalfWidth() &&
+            track.Vertex().X() > (2 * tpc.HalfWidth() - fXBuffer)))
     id = anab::CosmicTagID_t::kGeometry_X;
 
-  if (track.End().Z() < (0 + fZBuffer) || track.End().Z() > (geo.DetLength() - fZBuffer)) {
+  if (track.End().Z() < (0 + fZBuffer) || track.End().Z() > (tpc.Length() - fZBuffer)) {
     if (id == anab::CosmicTagID_t::kNotTagged)
       id = anab::CosmicTagID_t::kGeometry_Z;
     else if (id == anab::CosmicTagID_t::kGeometry_Z)
@@ -81,8 +82,8 @@ anab::CosmicTagID_t trk::TrackContainmentAlg::GetCosmicTagID(recob::Track const&
     else if (id == anab::CosmicTagID_t::kGeometry_X)
       id = anab::CosmicTagID_t::kGeometry_XZ;
   }
-  else if (track.End().Y() < (-1 * geo.DetHalfHeight() + fYBuffer) ||
-           track.End().Y() > (geo.DetHalfHeight() - fYBuffer)) {
+  else if (track.End().Y() < (-1 * tpc.HalfHeight() + fYBuffer) ||
+           track.End().Y() > (tpc.HalfHeight() - fYBuffer)) {
     if (id == anab::CosmicTagID_t::kNotTagged)
       id = anab::CosmicTagID_t::kGeometry_Y;
     else if (id == anab::CosmicTagID_t::kGeometry_Z)
@@ -93,8 +94,8 @@ anab::CosmicTagID_t trk::TrackContainmentAlg::GetCosmicTagID(recob::Track const&
       id = anab::CosmicTagID_t::kGeometry_XY;
   }
   else if ((track.End().X() > 0 && track.End().X() < (0 + fXBuffer)) ||
-           (track.End().X() < 2 * geo.DetHalfWidth() &&
-            track.End().X() > (2 * geo.DetHalfWidth() - fXBuffer))) {
+           (track.End().X() < 2 * tpc.HalfWidth() &&
+            track.End().X() > (2 * tpc.HalfWidth() - fXBuffer))) {
     if (id == anab::CosmicTagID_t::kNotTagged)
       id = anab::CosmicTagID_t::kGeometry_X;
     else if (id == anab::CosmicTagID_t::kGeometry_Z)
@@ -105,9 +106,9 @@ anab::CosmicTagID_t trk::TrackContainmentAlg::GetCosmicTagID(recob::Track const&
       id = anab::CosmicTagID_t::kGeometry_XX;
   }
 
-  if (track.Vertex().X() < 0 || track.Vertex().X() > 2 * geo.DetHalfWidth())
+  if (track.Vertex().X() < 0 || track.Vertex().X() > 2 * tpc.HalfWidth())
     id = anab::CosmicTagID_t::kOutsideDrift_Partial;
-  if (track.End().X() < 0 || track.End().X() > 2 * geo.DetHalfWidth()) {
+  if (track.End().X() < 0 || track.End().X() > 2 * tpc.HalfWidth()) {
     if (id == anab::CosmicTagID_t::kOutsideDrift_Partial)
       id = anab::CosmicTagID_t::kOutsideDrift_Complete;
     else
@@ -121,16 +122,9 @@ double trk::TrackContainmentAlg::MinDistanceStartPt(recob::Track const& t_probe,
                                                     recob::Track const& t_ref)
 {
   double min_distance = 9e12;
-  double tmp;
   for (size_t i_p = 0; i_p < t_ref.NumberTrajectoryPoints(); ++i_p) {
-    tmp = (t_probe.Vertex().X() - t_ref.LocationAtPoint(i_p).X()) *
-            (t_probe.Vertex().X() - t_ref.LocationAtPoint(i_p).X()) +
-          (t_probe.Vertex().Y() - t_ref.LocationAtPoint(i_p).Y()) *
-            (t_probe.Vertex().Y() - t_ref.LocationAtPoint(i_p).Y()) +
-          (t_probe.Vertex().Z() - t_ref.LocationAtPoint(i_p).Z()) *
-            (t_probe.Vertex().Z() - t_ref.LocationAtPoint(i_p).Z());
-    //std::cout << "\t\t\ttmp=" << tmp << std::endl;
-    if (tmp < min_distance) min_distance = tmp;
+    double const distance = (t_probe.Vertex() - t_ref.LocationAtPoint(i_p)).R();
+    if (distance < min_distance) min_distance = distance;
   }
   return std::sqrt(min_distance);
 }
@@ -139,15 +133,9 @@ double trk::TrackContainmentAlg::MinDistanceEndPt(recob::Track const& t_probe,
                                                   recob::Track const& t_ref)
 {
   double min_distance = 9e12;
-  double tmp;
   for (size_t i_p = 0; i_p < t_ref.NumberTrajectoryPoints(); ++i_p) {
-    tmp = (t_probe.End().X() - t_ref.LocationAtPoint(i_p).X()) *
-            (t_probe.End().X() - t_ref.LocationAtPoint(i_p).X()) +
-          (t_probe.End().Y() - t_ref.LocationAtPoint(i_p).Y()) *
-            (t_probe.End().Y() - t_ref.LocationAtPoint(i_p).Y()) +
-          (t_probe.End().Z() - t_ref.LocationAtPoint(i_p).Z()) *
-            (t_probe.End().Z() - t_ref.LocationAtPoint(i_p).Z());
-    if (tmp < min_distance) min_distance = tmp;
+    double const distance = (t_probe.End() - t_ref.LocationAtPoint(i_p)).R();
+    if (distance < min_distance) min_distance = distance;
   }
   return std::sqrt(min_distance);
 }
@@ -160,17 +148,19 @@ void trk::TrackContainmentAlg::SetRunEvent(unsigned int const& run, unsigned int
 
 void trk::TrackContainmentAlg::ProcessTracks(
   std::vector<std::vector<recob::Track>> const& tracksVec,
-  geo::GeometryCore const& geo)
+  geo::GeometryCore const& geo,
+  geo::WireReadoutGeom const& wireReadoutGeom)
 {
+  auto const& tpc = geo.TPC({0, 0});
 
   if (fDebug) {
     std::cout << "Geometry:" << std::endl;
-    std::cout << "\t" << geo.DetHalfWidth() << " " << geo.DetHalfHeight() << " " << geo.DetLength()
+    std::cout << "\t" << tpc.HalfWidth() << " " << tpc.HalfHeight() << " " << tpc.Length()
               << std::endl;
-    std::cout << "\t z:(" << fZBuffer << "," << geo.DetLength() - fZBuffer << ")"
-              << "\t y:(" << -1. * geo.DetHalfHeight() + fYBuffer << ","
-              << geo.DetHalfHeight() - fYBuffer << ")"
-              << "\t x:(" << 0 + fXBuffer << "," << 2 * geo.DetHalfWidth() - fXBuffer << ")"
+    std::cout << "\t z:(" << fZBuffer << "," << tpc.Length() - fZBuffer << ")"
+              << "\t y:(" << -1. * tpc.HalfHeight() + fYBuffer << "," << tpc.HalfHeight() - fYBuffer
+              << ")"
+              << "\t x:(" << 0 + fXBuffer << "," << 2 * tpc.HalfWidth() - fXBuffer << ")"
               << std::endl;
   }
 
@@ -224,13 +214,6 @@ void trk::TrackContainmentAlg::ProcessTracks(
           continue;
         else {
           for (auto const& i_tr : fTrackContainmentIndices[containment_level - 1]) {
-
-            /*
-              if(fDebug){
-                std::cout << "\t\t" << MinDistanceStartPt(tracksVec[i_tc][i_t],tracksVec[i_tr.first][i_tr.second]) << std::endl;
-                std::cout << "\t\t" << MinDistanceEndPt(tracksVec[i_tc][i_t],tracksVec[i_tr.first][i_tr.second]) << std::endl;
-              }
-              */
 
             if (MinDistanceStartPt(tracksVec[i_tc][i_t], tracksVec[i_tr.first][i_tr.second]) <
                 fMinDistances[i_tc][i_t])
@@ -316,16 +299,18 @@ void trk::TrackContainmentAlg::ProcessTracks(
         std::cout << "\tS_(X,Y,Z) = (" << vertex.X() << "," << vertex.Y() << "," << vertex.Z()
                   << ")\n";
         std::cout << "\tNearest wire ..." << std::endl;
-        for (unsigned int i_p = 0; i_p < geo.Nplanes(); ++i_p)
-          std::cout << "\t\tPlane " << i_p << " "
-                    << geo.NearestWireID(vertex, geo::PlaneID{0, 0, i_p}).Wire << std::endl;
+        for (unsigned int i_p = 0; i_p < wireReadoutGeom.Nplanes(); ++i_p) {
+          auto const& plane = wireReadoutGeom.Plane({0, 0, i_p});
+          std::cout << "\t\tPlane " << i_p << " " << plane.NearestWireID(vertex).Wire << std::endl;
+        }
 
         auto const& end = tracksVec[i_tc][i_t].End();
         std::cout << "\tE_(X,Y,Z) = (" << end.X() << "," << end.Y() << "," << end.Z() << ")\n";
         std::cout << "\tNearest wire ..." << std::endl;
-        for (unsigned int i_p = 0; i_p < geo.Nplanes(); ++i_p)
-          std::cout << "\t\tPlane " << i_p << " "
-                    << geo.NearestWireID(end, geo::PlaneID{0, 0, i_p}).Wire << std::endl;
+        for (unsigned int i_p = 0; i_p < wireReadoutGeom.Nplanes(); ++i_p) {
+          auto const& plane = wireReadoutGeom.Plane({0, 0, i_p});
+          std::cout << "\t\tPlane " << i_p << " " << plane.NearestWireID(end).Wire << std::endl;
+        }
         std::cout << "\tLength=" << tracksVec[i_tc][i_t].Length() << std::endl;
         std::cout << "\tSimple_length=" << (end - vertex).R() << std::endl;
       } //end debug statements if track contained
@@ -337,9 +322,8 @@ void trk::TrackContainmentAlg::ProcessTracks(
 
 std::vector<std::vector<anab::CosmicTag>> const& trk::TrackContainmentAlg::GetTrackCosmicTags()
 {
-  if (fMakeCosmicTags)
-    return fCosmicTags;
-  else
+  if (!fMakeCosmicTags)
     throw cet::exception("TrackContainmentAlg::GetTrackCosmicTags")
       << "Cosmic tags not created. Set MakeCosmicTags to true in fcl paramters.";
+  return fCosmicTags;
 }

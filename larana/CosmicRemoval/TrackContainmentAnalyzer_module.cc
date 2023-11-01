@@ -7,18 +7,18 @@
 // from cetpkgsupport v1_08_07.
 ////////////////////////////////////////////////////////////////////////
 
+#include "TrackContainment/TrackContainmentAlg.hh"
+#include "larcore/Geometry/Geometry.h"
+#include "larcore/Geometry/WireReadout.h"
+
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Handle.h"
+#include "art_root_io/TFileService.h"
 #include "fhiclcpp/ParameterSet.h"
 
-#include "art_root_io/TFileService.h"
-
 #include "TTree.h"
-
-#include "TrackContainment/TrackContainmentAlg.hh"
-#include "larcore/Geometry/Geometry.h"
 
 namespace trk {
   class TrackContainmentAnalyzer;
@@ -47,8 +47,7 @@ private:
 };
 
 trk::TrackContainmentAnalyzer::TrackContainmentAnalyzer(fhicl::ParameterSet const& p)
-  : EDAnalyzer(p) // ,
-                  // More initializers here.
+  : EDAnalyzer(p)
 {
   fAlg.Configure(p.get<fhicl::ParameterSet>("TrackContainmentAlg"));
   fTrackModuleLabels = p.get<std::vector<std::string>>("TrackModuleLabels");
@@ -71,7 +70,7 @@ void trk::TrackContainmentAnalyzer::analyze(art::Event const& e)
 
   art::ServiceHandle<geo::Geometry const> geoHandle;
 
-  fAlg.ProcessTracks(trackVectors, *geoHandle);
+  fAlg.ProcessTracks(trackVectors, *geoHandle, art::ServiceHandle<geo::WireReadout>()->Get());
 }
 
 DEFINE_ART_MODULE(trk::TrackContainmentAnalyzer)

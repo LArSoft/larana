@@ -18,6 +18,7 @@
 #include "FlashHypothesisAnaAlg.h"
 
 #include "larana/OpticalDetector/OpDigiProperties.h"
+#include "larcore/Geometry/Geometry.h"
 #include "lardata/DetectorInfoServices/LArPropertiesService.h"
 #include "lardata/DetectorInfoServices/ServicePack.h" // lar::extractProviders()
 #include "larsim/PhotonPropagation/PhotonVisibilityService.h"
@@ -65,7 +66,6 @@ namespace opdet {
 
   void FlashHypothesisAna::analyze(art::Event const& e)
   {
-
     art::Handle<std::vector<sim::MCTrack>> mctrackHandle;
     e.getByLabel(fMCTrackLabel, mctrackHandle);
     std::vector<sim::MCTrack> const& mctrackVec(*mctrackHandle);

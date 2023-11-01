@@ -6,6 +6,8 @@
 
 // LArSoft includes
 #include "larana/OpticalDetector/OpDigiProperties.h"
+#include "larcore/Geometry/Geometry.h"
+#include "larcore/Geometry/WireReadout.h"
 
 // Framework includes
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -64,6 +66,8 @@ namespace opdet {
     fWFTimeConstant = p.get<double>("WFTimeConstant");
     fVoltageAmpForSPE = p.get<double>("VoltageAmpForSPE");
 
+    fNOpChannels = art::ServiceHandle<geo::WireReadout const>()->Get().NOpChannels();
+
     // Generate the SPE waveform (i.e. fWaveform)
     GenerateWaveform();
 
@@ -73,10 +77,11 @@ namespace opdet {
     // Fill baseline mean
     FillPedMeanArray();
 
+    art::ServiceHandle<geo::Geometry const>{}; // <- Ick.  Make sure Geometry is constructed first.
     // Report
     std::string msg(Form(
       "%-10s ... %-10s ... %-10s ... %-10s\n", "Ch. Number", "Pedestal", "High Gain", "Low Gain"));
-    for (unsigned int i = 0; i < fGeometry->NOpChannels(); ++i) {
+    for (unsigned int i = 0; i < fNOpChannels; ++i) {
       msg += Form("%-10d ... %-10d ... %-10g ... %-10g\n",
                   i,
                   fPedMeanArray[i],
@@ -87,7 +92,7 @@ namespace opdet {
   }
 
   //--------------------------------------------------------------------
-  double OpDigiProperties::GetSPEArea()
+  double OpDigiProperties::GetSPEArea() const
   {
     double SPEArea = 0;
     for (size_t i = 0; i != fWaveform.size(); ++i)
@@ -96,7 +101,7 @@ namespace opdet {
   }
 
   //--------------------------------------------------------------------
-  double OpDigiProperties::GetSPEAmplitude()
+  double OpDigiProperties::GetSPEAmplitude() const
   {
     double AmpSoFar = 0;
     for (size_t i = 0; i != fWaveform.size(); ++i)
@@ -105,7 +110,7 @@ namespace opdet {
   }
 
   //--------------------------------------------------------------------
-  double OpDigiProperties::GetSPECumulativeArea()
+  double OpDigiProperties::GetSPECumulativeArea() const
   {
     double Cumulative = 0, SPEArea = 0;
     for (size_t i = 0; i != fWaveform.size(); ++i) {
@@ -116,7 +121,7 @@ namespace opdet {
   }
 
   //--------------------------------------------------------------------
-  double OpDigiProperties::GetSPECumulativeAmplitude()
+  double OpDigiProperties::GetSPECumulativeAmplitude() const
   {
     double AmpSoFar = 0, Cumulative = 0;
     for (size_t i = 0; i != fWaveform.size(); ++i) {
@@ -183,7 +188,7 @@ namespace opdet {
   // Fill the array of pedestal mean
   void OpDigiProperties::FillPedMeanArray()
   {
-    for (unsigned int i = 0; i < fGeometry->NOpChannels(); ++i)
+    for (unsigned int i = 0; i < fNOpChannels; ++i)
       fPedMeanArray.push_back((optdata::ADC_Count_t)(
         CLHEP::RandGauss::shoot((double)fADCBaseline, fADCBaseSpread) + 0.5));
   }
@@ -259,7 +264,7 @@ namespace opdet {
       txt += Form("        PMT-to-PMT gain spread : %g \n", fGainSpread_PMT2PMT);
       txt += Form("        Intrinsic gain spread  : %g \n", fGainSpread);
       mf::LogWarning("OpDigiProperties") << txt.c_str();
-      for (unsigned int i = 0; i < fGeometry->NOpChannels(); ++i) {
+      for (unsigned int i = 0; i < fNOpChannels; ++i) {
         fLowGainArray.push_back(
           CLHEP::RandGauss::shoot(fLowGainMean, fLowGainMean * fGainSpread_PMT2PMT));
         fHighGainArray.push_back(
@@ -277,11 +282,11 @@ namespace opdet {
     // it must mean the user provided an invalid channel number and not due to insufficient
     // vector elements filled in this function.
     //
-    if (fLowGainArray.size() < fGeometry->NOpChannels())
+    if (fLowGainArray.size() < fNOpChannels)
       throw cet::exception("OpDigiProperties") << "Low gain missing for some channels!\n";
-    if (fHighGainArray.size() < fGeometry->NOpChannels())
+    if (fHighGainArray.size() < fNOpChannels)
       throw cet::exception("OpDigiProperties") << "High gain missing for some channels!\n";
-    if (fGainSpreadArray.size() < fGeometry->NOpChannels())
+    if (fGainSpreadArray.size() < fNOpChannels)
       throw cet::exception("OpDigiProperties") << "Gain spread missing for some channels!\n";
   }
 

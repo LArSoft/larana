@@ -10,16 +10,7 @@
  * Input:       recob::OpFlash, recob::Track
  * Output:      anab::CosmicTag (and Assn<anab::CosmicTag,recob::Track>)
 */
-#include <iostream>
-#include <string>
-#include <vector>
 
-namespace fhicl {
-  class ParameterSet;
-}
-namespace geo {
-  class GeometryCore;
-}
 namespace detinfo {
   class LArProperties;
 }
@@ -31,15 +22,22 @@ namespace opdet {
 }
 
 #include "larcorealg/CoreUtils/ProviderPack.h"
+#include "larcorealg/Geometry/fwd.h"
 #include "lardataobj/AnalysisBase/CosmicTag.h"
 #include "lardataobj/RecoBase/OpFlash.h"
 #include "lardataobj/RecoBase/Track.h"
 
 #include "nusimdata/SimulationBase/MCParticle.h"
 
+#include "fhiclcpp/fwd.h"
+
 class TVector3;
 class TH1F;
 class TTree;
+
+#include <iostream>
+#include <string>
+#include <vector>
 
 namespace cosmic {
   class BeamFlashTrackMatchTaggerAlg;
@@ -180,7 +178,8 @@ private:
 
   CompatibilityResultType CheckCompatibility(std::vector<float> const& lightHypothesis,
                                              const recob::OpFlash* flashPointer,
-                                             geo::GeometryCore const& geom);
+                                             geo::GeometryCore const& geom,
+                                             geo::WireReadoutGeom const& wireReadoutGeom);
 
   bool InDetector(TVector3 const&, geo::GeometryCore const&);
   bool InDriftWindow(double, double, geo::GeometryCore const&);
@@ -201,6 +200,7 @@ private:
   void PrintHypothesisFlashComparison(std::vector<float> const&,
                                       const recob::OpFlash*,
                                       geo::GeometryCore const& geom,
+                                      geo::WireReadoutGeom const& wireReadoutGeom,
                                       CompatibilityResultType,
                                       std::ostream* output = &std::cout);
 };

@@ -8,7 +8,7 @@
 
 // LArSoft includes
 #include "larana/OpticalDetector/OpDigiProperties.h"
-#include "larcore/Geometry/Geometry.h"
+#include "larcore/Geometry/WireReadout.h"
 #include "lardataobj/OpticalDetectorData/ChannelData.h"
 #include "lardataobj/OpticalDetectorData/ChannelDataGroup.h"
 #include "lardataobj/OpticalDetectorData/OpticalTypes.h"
@@ -70,15 +70,11 @@ namespace opdet {
     optdata::ChannelData ApplyDigitization(std::vector<double> const RawWF,
                                            optdata::Channel_t const ch) const;
     art::ServiceHandle<OpDigiProperties> fOpDigiProperties;
-    art::ServiceHandle<geo::Geometry const> fGeom;
+    geo::WireReadoutGeom const* fWireReadoutGeom;
   };
 } // namespace opdet
 
-namespace opdet {
-
-  DEFINE_ART_MODULE(OptDetDigitizer)
-
-} //end namespace opdet
+DEFINE_ART_MODULE(opdet::OptDetDigitizer)
 
 namespace opdet {
 
@@ -89,6 +85,7 @@ namespace opdet {
                                                                                  "Seed"))
     , fFlatRandom{fEngine}
     , fPoissonRandom{fEngine}
+    , fWireReadoutGeom{&art::ServiceHandle<geo::WireReadout const>()->Get()}
   {
     // Infrastructure piece
     produces<std::vector<optdata::ChannelDataGroup>>();
@@ -190,7 +187,6 @@ namespace opdet {
 
   void OptDetDigitizer::produce(art::Event& evt)
   {
-
     //
     // Event-wise initialization
     //
@@ -219,16 +215,17 @@ namespace opdet {
     optdata::ChannelDataGroup rawWFGroup_HighGain(optdata::kHighGain);
     optdata::ChannelDataGroup rawWFGroup_LowGain(optdata::kLowGain);
     // Reserve entries equal to # of channels
-    rawWFGroup_HighGain.reserve(fGeom->NOpChannels());
-    rawWFGroup_LowGain.reserve(fGeom->NOpChannels());
+    auto const nOpChannels = fWireReadoutGeom->NOpChannels();
+    rawWFGroup_HighGain.reserve(nOpChannels);
+    rawWFGroup_LowGain.reserve(nOpChannels);
 
     /*
       Define "raw" waveform container which will be filled based on G4 photon timing + SPE waveform information.
       Note this is not completely an analog waveform because it is digitized in terms of time (as it is using std::vector).
     */
-    std::vector<std::vector<double>> rawWF_HighGain(fGeom->NOpChannels(),
+    std::vector<std::vector<double>> rawWF_HighGain(nOpChannels,
                                                     std::vector<double>(timeSliceWindow, 0.0));
-    std::vector<std::vector<double>> rawWF_LowGain(fGeom->NOpChannels(),
+    std::vector<std::vector<double>> rawWF_LowGain(nOpChannels,
                                                    std::vector<double>(timeSliceWindow, 0.0));
 
     /*
