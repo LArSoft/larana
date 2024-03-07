@@ -133,10 +133,16 @@ namespace opdet {
 
   //--------------------------------------------------------------------
 
-  double OpDigiProperties::LowGainMean(optdata::Channel_t ch) const { return fLowGainArray[ch]; }
+  double OpDigiProperties::LowGainMean(optdata::Channel_t ch) const
+  {
+    return fLowGainArray[ch];
+  }
 
   //--------------------------------------------------------------------
-  double OpDigiProperties::HighGainMean(optdata::Channel_t ch) const { return fHighGainArray[ch]; }
+  double OpDigiProperties::HighGainMean(optdata::Channel_t ch) const
+  {
+    return fHighGainArray[ch];
+  }
   //--------------------------------------------------------------------
   double OpDigiProperties::LowGain(optdata::Channel_t ch) const
   {

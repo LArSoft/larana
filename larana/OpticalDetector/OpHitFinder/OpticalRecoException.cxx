@@ -10,6 +10,9 @@ namespace pmtana {
     _msg += "\033[00m\n";
   }
 
-  const char* OpticalRecoException::what() const throw() { return _msg.c_str(); }
+  const char* OpticalRecoException::what() const throw()
+  {
+    return _msg.c_str();
+  }
 
 }

@@ -145,7 +145,7 @@ namespace opdet {
         if (!ph_handle.isValid()) { continue; }
         if (ph_handle.provenance()->moduleLabel() != mod) { continue; }
 
-        if (ph_handle->empty()) {
+        if (!ph_handle->empty()) {
           for (auto const& itOpDet : (*ph_handle)) {
             OpChannel = int(itOpDet.OpChannel());
             const sim::SimPhotons& TheHit = itOpDet;

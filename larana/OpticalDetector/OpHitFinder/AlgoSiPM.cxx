@@ -28,7 +28,10 @@ namespace pmtana {
   }
 
   //---------------------------------------------------------------------------
-  void AlgoSiPM::Reset() { PMTPulseRecoBase::Reset(); }
+  void AlgoSiPM::Reset()
+  {
+    PMTPulseRecoBase::Reset();
+  }
 
   //---------------------------------------------------------------------------
   bool AlgoSiPM::RecoPulse(const pmtana::Waveform_t& wf,

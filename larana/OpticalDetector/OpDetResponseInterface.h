@@ -59,7 +59,10 @@ namespace opdet {
   }
 
   //-------------------------------------------------------------------------------------------------------------
-  inline int OpDetResponseInterface::NOpChannels() const { return doNOpChannels(); }
+  inline int OpDetResponseInterface::NOpChannels() const
+  {
+    return doNOpChannels();
+  }
 
   //-------------------------------------------------------------------------------------------------------------
   inline int OpDetResponseInterface::doNOpChannels() const
