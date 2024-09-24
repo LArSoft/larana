@@ -12,6 +12,7 @@
 #include "larana/OpticalDetector/OpFlashAlg.h"
 #include "larcore/CoreUtils/ServiceUtil.h"
 #include "larcore/Geometry/Geometry.h"
+#include "larcore/Geometry/WireReadout.h"
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"
 #include "lardata/Utilities/AssociationUtil.h"
 #include "lardataobj/RecoBase/OpFlash.h"
@@ -90,6 +91,7 @@ namespace opdet {
     std::vector<std::vector<int>> assocList;
 
     auto const& geometry(*lar::providerFrom<geo::Geometry>());
+    auto const& wireReadoutGeom = art::ServiceHandle<geo::WireReadout const>()->Get();
 
     auto const clock_data =
       art::ServiceHandle<detinfo::DetectorClocksService const>()->DataFor(evt);
@@ -102,6 +104,7 @@ namespace opdet {
                    assocList,
                    fBinWidth,
                    geometry,
+                   wireReadoutGeom,
                    fFlashThreshold,
                    fWidthTolerance,
                    clock_data,

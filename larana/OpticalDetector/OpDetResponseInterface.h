@@ -11,7 +11,7 @@
 #define OPDET_RESPONSE_INTERFACE_H
 
 // LArSoft includes
-#include "larcore/Geometry/Geometry.h"
+#include "larcore/Geometry/WireReadout.h"
 namespace sim {
   struct OnePhoton;
 }
@@ -19,9 +19,7 @@ namespace sim {
 // ART includes
 #include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-namespace fhicl {
-  class ParameterSet;
-}
+#include "fhiclcpp/fwd.h"
 
 namespace opdet {
   class OpDetResponseInterface {
@@ -70,8 +68,8 @@ namespace opdet {
   inline int OpDetResponseInterface::doNOpChannels() const
   {
     // By default return the number of detector channels
-    art::ServiceHandle<geo::Geometry const> geom;
-    return geom->NOpChannels();
+    auto const& wireReadoutGeom = art::ServiceHandle<geo::WireReadout const>()->Get();
+    return wireReadoutGeom.NOpChannels();
   }
 
   //-------------------------------------------------------------------------------------------------------------
@@ -83,9 +81,8 @@ namespace opdet {
   //-------------------------------------------------------------------------------------------------------------
   inline int OpDetResponseInterface::doReadoutToGeoChannel(int readoutChannel) const
   {
-    // Pass this call off to the geometry service
-    art::ServiceHandle<geo::Geometry const> geom;
-    return geom->OpDetFromOpChannel(readoutChannel);
+    auto const& wireReadoutGeom = art::ServiceHandle<geo::WireReadout const>()->Get();
+    return wireReadoutGeom.OpDetFromOpChannel(readoutChannel);
   }
 
   //-------------------------------------------------------------------------------------------------------------

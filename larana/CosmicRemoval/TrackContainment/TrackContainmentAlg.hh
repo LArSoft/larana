@@ -8,21 +8,16 @@
 #ifndef TRK_TRACKCONTAINMENTALG_H
 #define TRK_TRACKCONTAINMENTALG_H
 
-#include <string>
-#include <vector>
-
-namespace fhicl {
-  class ParameterSet;
-}
-
+#include "larcorealg/Geometry/fwd.h"
 #include "lardataobj/AnalysisBase/CosmicTag.h"
 #include "lardataobj/RecoBase/Track.h"
 
+#include "fhiclcpp/fwd.h"
+
 class TTree;
 
-namespace geo {
-  class GeometryCore;
-}
+#include <string>
+#include <vector>
 
 namespace trk {
   class TrackContainmentAlg;
@@ -80,7 +75,9 @@ public:
   void Configure(fhicl::ParameterSet const&);
 
   void SetRunEvent(unsigned int const&, unsigned int const&);
-  void ProcessTracks(std::vector<std::vector<recob::Track>> const&, geo::GeometryCore const&);
+  void ProcessTracks(std::vector<std::vector<recob::Track>> const&,
+                     geo::GeometryCore const&,
+                     geo::WireReadoutGeom const&);
 
   std::vector<std::vector<int>> const& GetTrackContainmentValues()
   {

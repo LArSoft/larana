@@ -69,11 +69,11 @@ private:
 cosmic::CosmicPCAxisTagger::CosmicPCAxisTagger(fhicl::ParameterSet const& p)
   : EDProducer{p}, fPcaAlg(p.get<fhicl::ParameterSet>("PrincipalComponentsAlg"))
 {
-  art::ServiceHandle<geo::Geometry const> geo;
+  auto const& tpc = art::ServiceHandle<geo::Geometry const>()->TPC({0, 0});
 
-  fDetHalfHeight = geo->DetHalfHeight();
-  fDetWidth = 2. * geo->DetHalfWidth();
-  fDetLength = geo->DetLength();
+  fDetHalfHeight = tpc.HalfHeight();
+  fDetWidth = 2. * tpc.HalfWidth();
+  fDetLength = tpc.Length();
 
   auto const clock_data = art::ServiceHandle<detinfo::DetectorClocksService const>()->DataForJob();
   float fSamplingRate = sampling_rate(clock_data);
@@ -91,7 +91,7 @@ cosmic::CosmicPCAxisTagger::CosmicPCAxisTagger(fhicl::ParameterSet const& p)
     detector.DriftVelocity(detector.Efield(), detector.Temperature()); // cm/us
 
   fDetectorWidthTicks =
-    2 * geo->DetHalfWidth() / (driftVelocity * fSamplingRate / 1000); // ~3200 for uB
+    2 * tpc.HalfWidth() / (driftVelocity * fSamplingRate / 1000); // ~3200 for uB
 
   produces<std::vector<anab::CosmicTag>>();
   produces<art::Assns<recob::PFParticle, anab::CosmicTag>>();

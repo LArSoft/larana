@@ -12,14 +12,12 @@
 #define OPDET_OPDIGIPROPERTIES_H
 
 // LArSoft includes
-#include "larcore/Geometry/Geometry.h"
 #include "lardataobj/OpticalDetectorData/OpticalTypes.h"
 
 // ART includes
-namespace fhicl {
-  class ParameterSet;
-}
+#include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "fhiclcpp/fwd.h"
 
 // ROOT includes
 class TF1;
@@ -40,14 +38,14 @@ namespace opdet {
     double TimeEnd() const noexcept { return fTimeEnd; }
 
     /**
-	 DEPRECATED as far as Kazu is concerned for UBooNE PMT simulation.
-	 Any comment? --Kazu 08/05/2013
+       DEPRECATED as far as Kazu is concerned for UBooNE PMT simulation.
+       Any comment? --Kazu 08/05/2013
       */
     std::vector<double> WaveformInit(std::string WaveformFile);
 
     /**
-	  Convert the given time into time-slice number.
-	  Input time should be in ns unit and measurd w.r.t. MC photon T0
+       Convert the given time into time-slice number.
+       Input time should be in ns unit and measurd w.r.t. MC photon T0
       */
     optdata::TimeSlice_t GetTimeSlice(double time_ns);
 
@@ -96,14 +94,11 @@ namespace opdet {
     /// Returns an array of generated pedestal mean value per channel
     std::vector<optdata::ADC_Count_t> const& PedMeanArray() const noexcept { return fPedMeanArray; }
 
-    /// Utility function ... To be verified (Kazu 08/05/13)
-    double GetSPEArea();
-    /// Utility function ... To be verified (Kazu 08/05/13)
-    double GetSPECumulativeArea();
-    /// Utility function ... To be verified (Kazu 08/05/13)
-    double GetSPEAmplitude();
-    /// Utility function ... To be verified (Kazu 08/05/13)
-    double GetSPECumulativeAmplitude();
+    /// Utility functions
+    double GetSPEArea() const;
+    double GetSPECumulativeArea() const;
+    double GetSPEAmplitude() const;
+    double GetSPECumulativeAmplitude() const;
 
   private:
     double fSampleFreq;
@@ -146,8 +141,7 @@ namespace opdet {
     std::vector<double> fHighGainArray;
     std::vector<double> fGainSpreadArray;
     std::vector<optdata::ADC_Count_t> fPedMeanArray;
-    art::ServiceHandle<geo::Geometry const> fGeometry;
-
+    unsigned int fNOpChannels;
   }; // class OpDigiProperties
 
 } //namespace opdet

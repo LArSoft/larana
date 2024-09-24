@@ -16,7 +16,7 @@
 #include "larana/OpticalDetector/OpHitFinder/PMTPulseRecoBase.h"
 #include "larana/OpticalDetector/OpHitFinder/PulseRecoManager.h"
 #include "larcore/CoreUtils/ServiceUtil.h" // lar::providerFrom()
-#include "larcore/Geometry/Geometry.h"
+#include "larcore/Geometry/WireReadout.h"
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"
 #include "lardataobj/RawData/OpDetWaveform.h"
 #include "lardataobj/RecoBase/OpHit.h"
@@ -176,7 +176,7 @@ namespace opdet {
     std::unique_ptr<pmtana::PMTPulseRecoBase> const fThreshAlg;
     std::unique_ptr<pmtana::PMTPedestalBase> const fPedAlg;
 
-    Float_t fHitThreshold;
+    float fHitThreshold;
     unsigned int fMaxOpChannel;
     bool fUseStartTime;
 
@@ -185,9 +185,7 @@ namespace opdet {
 
 }
 
-namespace opdet {
-  DEFINE_ART_MODULE(OpHitFinder)
-}
+DEFINE_ART_MODULE(opdet::OpHitFinder)
 
 namespace opdet {
 
@@ -212,8 +210,7 @@ namespace opdet {
     fHitThreshold = pset.get<float>("HitThreshold");
     bool useCalibrator = pset.get<bool>("UseCalibrator", false);
 
-    auto const& geometry(*lar::providerFrom<geo::Geometry>());
-    fMaxOpChannel = geometry.MaxOpChannel();
+    fMaxOpChannel = art::ServiceHandle<geo::WireReadout const>()->Get().MaxOpChannel();
 
     if (useCalibrator) {
       // If useCalibrator, get it from ART
@@ -248,7 +245,6 @@ namespace opdet {
   //----------------------------------------------------------------------------
   void OpHitFinder::produce(art::Event& evt)
   {
-
     // These is the storage pointer we will put in the event
     std::unique_ptr<std::vector<recob::OpHit>> HitPtr(new std::vector<recob::OpHit>);
 
@@ -260,7 +256,7 @@ namespace opdet {
       if (err.categoryCode() != art::errors::ProductNotFound) throw;
     }
 
-    auto const& geometry(*lar::providerFrom<geo::Geometry>());
+    auto const& wireReadoutGeom = art::ServiceHandle<geo::WireReadout const>()->Get();
     auto const clock_data =
       art::ServiceHandle<detinfo::DetectorClocksService const>()->DataFor(evt);
     auto const& calibrator(*fCalib);
@@ -280,7 +276,7 @@ namespace opdet {
                    *HitPtr,
                    fPulseRecoMgr,
                    *fThreshAlg,
-                   geometry,
+                   wireReadoutGeom,
                    fHitThreshold,
                    clock_data,
                    calibrator,
@@ -305,8 +301,6 @@ namespace opdet {
         evt.getByLabel(fInputModule, label, wfHandle);
         if (!wfHandle.isValid()) continue; // Skip non-existent collections
 
-        //WaveformVector.insert(WaveformVector.end(),
-        //                      wfHandle->begin(), wfHandle->end());
         for (auto const& wf : *wfHandle) {
           if (fChannelMasks.find(wf.ChannelNumber()) != fChannelMasks.end()) continue;
           WaveformVector.push_back(wf);
@@ -317,7 +311,7 @@ namespace opdet {
                    *HitPtr,
                    fPulseRecoMgr,
                    *fThreshAlg,
-                   geometry,
+                   wireReadoutGeom,
                    fHitThreshold,
                    clock_data,
                    calibrator,

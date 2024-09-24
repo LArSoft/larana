@@ -5,6 +5,7 @@
 
 #include "larana/ParticleIdentification/MVAAlg.h"
 #include "larcore/Geometry/Geometry.h"
+#include "larcore/Geometry/WireReadout.h"
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"
 #include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
 #include "lardata/Utilities/AssociationUtil.h"
@@ -110,8 +111,8 @@ void mvapid::MVAAlg::GetDetectorEdges()
 
 void mvapid::MVAAlg::GetWireNormals()
 {
-
   art::ServiceHandle<geo::Geometry const> geom;
+  auto const& wireReadoutGeom = art::ServiceHandle<geo::WireReadout>()->Get();
 
   fNormToWiresY.clear();
   fNormToWiresZ.clear();
@@ -120,7 +121,7 @@ void mvapid::MVAAlg::GetWireNormals()
 
   //Get normals to wires for each plane in the detector
   //This assumes equal numbers of TPCs in each cryostat and equal numbers of planes in each TPC
-  for (auto const& plane : geom->Iterate<geo::PlaneGeo>()) {
+  for (auto const& plane : wireReadoutGeom.Iterate<geo::PlaneGeo>()) {
     std::string id = std::string(plane.ID());
     int pcryo = id.find("C");
     int ptpc = id.find("T");
@@ -131,7 +132,7 @@ void mvapid::MVAAlg::GetWireNormals()
     int icryo = std::stoi(scryo);
     int itpc = std::stoi(stpc);
     int iplane = std::stoi(splane);
-    planeKey = icryo * geom->NTPC() * geom->Nplanes() + itpc * geom->Nplanes() +
+    planeKey = icryo * geom->NTPC() * wireReadoutGeom.Nplanes() + itpc * wireReadoutGeom.Nplanes() +
                iplane; //single index for all planes in detector
     fNormToWiresY.insert(
       std::make_pair(planeKey, -plane.Wire(0).Direction().Z())); //y component of normal
@@ -631,6 +632,7 @@ double mvapid::MVAAlg::CalcSegmentdEdxDist(const detinfo::DetectorClocksData& cl
                                            double end)
 {
   art::ServiceHandle<geo::Geometry const> geom;
+  auto const& wireReadoutGeom = art::ServiceHandle<geo::WireReadout>()->Get();
 
   double totaldEdx = 0;
   unsigned int nHits = 0;
@@ -644,19 +646,19 @@ double mvapid::MVAAlg::CalcSegmentdEdxDist(const detinfo::DetectorClocksData& cl
     art::Ptr<recob::Hit> hit = hitIter->second;
 
     //Pitch to use in dEdx calculation
-    double yzPitch = geom->WirePitch(
-      hit->WireID().asPlaneID()); //pitch not taking into account angle of track or shower
+    auto const& plane = wireReadoutGeom.Plane(hit->WireID());
+    double yzPitch = plane.WirePitch(); //pitch not taking into account angle of track or shower
     double xComponent, pitch3D;
 
     TVector3 dir = track.dir;
 
     //This assumes equal numbers of TPCs in each cryostat and equal numbers of planes in each TPC
-    int planeKey = hit->WireID().Cryostat * geom->NTPC() * geom->Nplanes() +
-                   hit->WireID().TPC * geom->Nplanes() + hit->WireID().Plane;
+    int planeKey = hit->WireID().Cryostat * geom->NTPC() * wireReadoutGeom.Nplanes() +
+                   hit->WireID().TPC * wireReadoutGeom.Nplanes() + hit->WireID().Plane;
 
     if (fNormToWiresY.count(planeKey) && fNormToWiresZ.count(planeKey)) {
       TVector3 normToWires(0.0, fNormToWiresY.at(planeKey), fNormToWiresZ.at(planeKey));
-      yzPitch = geom->WirePitch(hit->WireID().asPlaneID()) / fabs(dir.Dot(normToWires));
+      yzPitch = plane.WirePitch() / fabs(dir.Dot(normToWires));
     }
 
     xComponent = yzPitch * dir[0] / sqrt(dir[1] * dir[1] + dir[2] * dir[2]);
