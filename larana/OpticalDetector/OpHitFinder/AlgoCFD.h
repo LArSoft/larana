@@ -50,7 +50,7 @@ namespace pmtana {
 
   protected:
     /// Implementation of AlgoCFD::reco() method
-    bool RecoPulse(const pmtana::Waveform_t&,
+    bool RecoPulse(const raw::OpDetWaveform&,
                    const pmtana::PedestalMean_t&,
                    const pmtana::PedestalSigma_t&);
 

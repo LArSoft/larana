@@ -34,7 +34,7 @@ namespace pmtana {
   }
 
   //---------------------------------------------------------------------------
-  bool AlgoSiPM::RecoPulse(const pmtana::Waveform_t& wf,
+  bool AlgoSiPM::RecoPulse(const raw::OpDetWaveform& wf,
                            const pmtana::PedestalMean_t& ped_mean,
                            const pmtana::PedestalSigma_t& ped_rms)
   {

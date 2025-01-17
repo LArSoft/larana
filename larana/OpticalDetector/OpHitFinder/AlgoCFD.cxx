@@ -48,7 +48,7 @@ namespace pmtana {
   }
 
   //***************************************************************
-  bool AlgoCFD::RecoPulse(const pmtana::Waveform_t& wf,
+  bool AlgoCFD::RecoPulse(const raw::OpDetWaveform& wf,
                           const pmtana::PedestalMean_t& mean_v,
                           const pmtana::PedestalSigma_t& sigma_v)
   //***************************************************************

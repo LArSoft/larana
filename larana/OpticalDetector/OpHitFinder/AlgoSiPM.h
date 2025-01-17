@@ -39,7 +39,7 @@ namespace pmtana {
     //      void SetNSigma(double v) {_nsigma = v;};
 
   protected:
-    bool RecoPulse(const pmtana::Waveform_t&,
+    bool RecoPulse(const raw::OpDetWaveform&,
                    const pmtana::PedestalMean_t&,
                    const pmtana::PedestalSigma_t&);
 
