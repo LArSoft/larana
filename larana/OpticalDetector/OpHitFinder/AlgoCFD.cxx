@@ -58,13 +58,13 @@ namespace pmtana {
 
     Reset();
 
-    if(_peak_thresh_by_channel)
-    {
+    if (_peak_thresh_by_channel) {
       uint ChannelNumber = wf.ChannelNumber();
-      if(ChannelNumber>=_peak_thresh_vector.size()) throw cet::exception("OpHitFinder") << "Threshold not found for channel " << ChannelNumber << "\n";
+      if (ChannelNumber >= _peak_thresh_vector.size())
+        throw cet::exception("OpHitFinder")
+          << "Threshold not found for channel " << ChannelNumber << "\n";
       _peak_thresh = _peak_thresh_vector[ChannelNumber];
     }
-
 
     std::vector<double> cfd;
     cfd.reserve(wf.size());

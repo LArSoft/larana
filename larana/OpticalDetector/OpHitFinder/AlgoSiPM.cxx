@@ -50,10 +50,11 @@ namespace pmtana {
       ped_mean
         .front(); //Switch pedestal definition to incoroprate pedestal finder - K.S. 04/18/2019
 
-    if(_adc_thres_by_channel)
-    {
+    if (_adc_thres_by_channel) {
       uint ChannelNumber = wf.ChannelNumber();
-      if(ChannelNumber>=_adc_thres_vector.size()) throw cet::exception("OpHitFinder") << "ADC Threshold not found for channel " << ChannelNumber << "\n";
+      if (ChannelNumber >= _adc_thres_vector.size())
+        throw cet::exception("OpHitFinder")
+          << "ADC Threshold not found for channel " << ChannelNumber << "\n";
       _adc_thres = _adc_thres_vector[ChannelNumber];
     }
 
