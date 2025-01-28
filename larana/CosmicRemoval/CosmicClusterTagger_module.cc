@@ -95,7 +95,7 @@ void cosmic::CosmicClusterTagger::produce(art::Event& e)
     // Doing some checks on the cluster to determine if it's a cosmic
     bool failClusterTickCheck = false;
 
-    auto const [t0, t1] = std::minmax(tCluster->StartTick(), tCluster->EndTick());
+    auto const [t0, t1] = std::minmax({tCluster->StartTick(), tCluster->EndTick()});
     if (t0 + fTickLimit < fMinTickDrift) { // This is into the pre-spill window
       failClusterTickCheck = true;
     }
