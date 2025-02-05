@@ -21,6 +21,7 @@
 
 #include "OpticalRecoTypes.h"
 #include "larana/OpticalDetector/OpHitFinder/RiseTimeTools/RiseTimeCalculatorBase.h"
+#include "lardataobj/RawData/OpDetWaveform.h"
 
 #include <memory>
 
@@ -84,7 +85,7 @@ namespace pmtana {
     /** A core method: this executes the algorithm and stores reconstructed parameters
       in the pulse_param struct object.
     */
-    bool Reconstruct(const pmtana::Waveform_t&,
+    bool Reconstruct(const raw::OpDetWaveform&,
                      const pmtana::PedestalMean_t&,
                      const pmtana::PedestalSigma_t&);
 
@@ -108,7 +109,7 @@ namespace pmtana {
     bool _status;
 
   protected:
-    virtual bool RecoPulse(const pmtana::Waveform_t&,
+    virtual bool RecoPulse(const raw::OpDetWaveform&,
                            const pmtana::PedestalMean_t&,
                            const pmtana::PedestalSigma_t&) = 0;
 
