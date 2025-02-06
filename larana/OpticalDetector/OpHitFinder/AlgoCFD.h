@@ -50,7 +50,7 @@ namespace pmtana {
 
   protected:
     /// Implementation of AlgoCFD::reco() method
-    bool RecoPulse(const pmtana::Waveform_t&,
+    bool RecoPulse(const raw::OpDetWaveform&,
                    const pmtana::PedestalMean_t&,
                    const pmtana::PedestalSigma_t&);
 
@@ -64,6 +64,10 @@ namespace pmtana {
     double _peak_thresh;
     double _start_thresh;
     double _end_thresh;
+    //Whether to apply an individual threshold for each channel
+    bool _peak_thresh_by_channel;
+    //Vector of thresholds for each channel
+    std::vector<double> _peak_thresh_vector;
   };
 
 }
