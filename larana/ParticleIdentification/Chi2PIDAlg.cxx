@@ -92,7 +92,7 @@ anab::ParticleID pid::Chi2PIDAlg::DoParticleID(
       //ignore the first and the last point
       if (i == 0 || i == trkdedx.size() - 1) continue;
       if (trkdedx[i] > 1000) continue; //protect against large pulse height
-      if (trkres[i] < 30) { // pida is evaluated over the last 30 cm
+      if (trkres[i] < 30) {            // pida is evaluated over the last 30 cm
         double PIDAi = trkdedx[i] * pow(trkres[i], 0.42);
         if (fLimitPIDA && PIDAi > fMaximumPIDA) continue;
         PIDA += PIDAi;
