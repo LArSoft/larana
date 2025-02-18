@@ -42,6 +42,8 @@ namespace pid {
   private:
     std::string fTemplateFile;
     bool fUseMedian;
+    bool fLimitPIDA;
+    double fMaximumPIDA;
     //std::string fCalorimetryModuleLabel;
     std::string fROOTfile;
 

@@ -29,6 +29,8 @@ pid::Chi2PIDAlg::Chi2PIDAlg(fhicl::ParameterSet const& pset)
 {
   fTemplateFile = pset.get<std::string>("TemplateFile");
   fUseMedian = pset.get<bool>("UseMedian");
+  fLimitPIDA = pset.get<bool>("LimitPIDA");
+  fMaximumPIDA = pset.get<float>("MaximumPIDA");
   //fCalorimetryModuleLabel = pset.get< std::string >("CalorimetryModuleLabel");
 
   cet::search_path sp("FW_SEARCH_PATH");
@@ -89,13 +91,14 @@ anab::ParticleID pid::Chi2PIDAlg::DoParticleID(
     for (unsigned i = 0; i < trkdedx.size(); ++i) { //hits
       //ignore the first and the last point
       if (i == 0 || i == trkdedx.size() - 1) continue;
-      if (trkres[i] < 30) {
+      if (trkdedx[i] > 1000) continue; //protect against large pulse height
+      if (trkres[i] < 30) { // pida is evaluated over the last 30 cm
         double PIDAi = trkdedx[i] * pow(trkres[i], 0.42);
+        if (fLimitPIDA && PIDAi > fMaximumPIDA) continue;
         PIDA += PIDAi;
         vpida.push_back(PIDAi);
         used_trkres++;
       }
-      if (trkdedx[i] > 1000) continue; //protect against large pulse height
       int bin = dedx_range_pro->FindBin(trkres[i]);
       if (bin >= 1 && bin <= nbins_dedx_range) {
         double bincpro = dedx_range_pro->GetBinContent(bin);
@@ -206,6 +209,7 @@ anab::ParticleID pid::Chi2PIDAlg::DoParticleID(
         pida_median.fTrackDir = anab::kForward;
         pida_median.fValue = TMath::Median(vpida.size(), &vpida[0]);
         pida_median.fPlaneMask = GetBitset(calo->PlaneID());
+        pida_median.fNdf = used_trkres;
         AlgScoresVec.push_back(pida_median);
       }
       else { // use mean
@@ -214,6 +218,7 @@ anab::ParticleID pid::Chi2PIDAlg::DoParticleID(
         pida_mean.fTrackDir = anab::kForward;
         pida_mean.fValue = PIDA / used_trkres;
         pida_mean.fPlaneMask = GetBitset(calo->PlaneID());
+        pida_mean.fNdf = used_trkres;
         AlgScoresVec.push_back(pida_mean);
       }
     }

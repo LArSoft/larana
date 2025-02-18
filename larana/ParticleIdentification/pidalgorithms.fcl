@@ -4,6 +4,8 @@ standard_chi2pidalg:
 {
     TemplateFile:           "dEdxrestemplates.root"
     UseMedian:              true
+    LimitPIDA:              false
+    MaximumPIDA:            30
 }
 
 standard_pidaalg:
