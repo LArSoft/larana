@@ -30,7 +30,7 @@ pid::Chi2PIDAlg::Chi2PIDAlg(fhicl::ParameterSet const& pset)
   fTemplateFile = pset.get<std::string>("TemplateFile");
   fUseMedian = pset.get<bool>("UseMedian");
   fLimitPIDA = pset.get<bool>("LimitPIDA");
-  fMaximumPIDA = pset.get<float>("MaximumPIDA");
+  fMaximumPIDA = pset.get<double>("MaximumPIDA");
   //fCalorimetryModuleLabel = pset.get< std::string >("CalorimetryModuleLabel");
 
   cet::search_path sp("FW_SEARCH_PATH");
