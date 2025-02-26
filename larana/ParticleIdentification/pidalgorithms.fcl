@@ -4,8 +4,7 @@ standard_chi2pidalg:
 {
     TemplateFile:           "dEdxrestemplates.root"
     UseMedian:              true
-    LimitPIDA:              false
-    MaximumPIDA:            30
+    # MaximumPIDA:            30 # Optional argument: limits PIDA values that are considered for median or mean
 }
 
 standard_pidaalg:
