@@ -9,6 +9,7 @@
 #define CHI2PIDALG_H
 
 #include <bitset>
+#include <optional>
 #include <string>
 
 namespace fhicl {
@@ -42,6 +43,7 @@ namespace pid {
   private:
     std::string fTemplateFile;
     bool fUseMedian;
+    std::optional<double> fMaximumPIDA;
     //std::string fCalorimetryModuleLabel;
     std::string fROOTfile;
 
