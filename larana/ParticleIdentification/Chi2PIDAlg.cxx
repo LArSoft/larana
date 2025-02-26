@@ -29,8 +29,7 @@ pid::Chi2PIDAlg::Chi2PIDAlg(fhicl::ParameterSet const& pset)
 {
   fTemplateFile = pset.get<std::string>("TemplateFile");
   fUseMedian = pset.get<bool>("UseMedian");
-  fLimitPIDA = pset.get<bool>("LimitPIDA");
-  fMaximumPIDA = pset.get<double>("MaximumPIDA");
+  fMaximumPIDA = pset.get_if_present<double>("MaximumPIDA");
   //fCalorimetryModuleLabel = pset.get< std::string >("CalorimetryModuleLabel");
 
   cet::search_path sp("FW_SEARCH_PATH");
@@ -94,7 +93,7 @@ anab::ParticleID pid::Chi2PIDAlg::DoParticleID(
       if (trkdedx[i] > 1000) continue; //protect against large pulse height
       if (trkres[i] < 30) {            // pida is evaluated over the last 30 cm
         double PIDAi = trkdedx[i] * pow(trkres[i], 0.42);
-        if (fLimitPIDA && PIDAi > fMaximumPIDA) continue;
+        if (fMaximumPIDA && PIDAi > *fMaximumPIDA) continue;
         PIDA += PIDAi;
         vpida.push_back(PIDAi);
         used_trkres++;

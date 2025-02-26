@@ -10,6 +10,7 @@
 
 #include <bitset>
 #include <string>
+#include <optional>
 
 namespace fhicl {
   class ParameterSet;
@@ -42,8 +43,7 @@ namespace pid {
   private:
     std::string fTemplateFile;
     bool fUseMedian;
-    bool fLimitPIDA;
-    double fMaximumPIDA;
+    std::optional<double> fMaximumPIDA;
     //std::string fCalorimetryModuleLabel;
     std::string fROOTfile;
 
