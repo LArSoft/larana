@@ -9,8 +9,8 @@
 #define CHI2PIDALG_H
 
 #include <bitset>
-#include <string>
 #include <optional>
+#include <string>
 
 namespace fhicl {
   class ParameterSet;
