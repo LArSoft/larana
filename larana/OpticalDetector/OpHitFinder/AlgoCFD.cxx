@@ -31,6 +31,8 @@ namespace pmtana {
     _D = pset.get<int>("Delay");
 
     //_number_presample = pset.get<int>   ("BaselinePreSample");
+    _peak_thresh_by_channel = pset.get<bool>("ThreshByChannel", false);
+    _peak_thresh_vector = pset.get<std::vector<double>>("PeakThreshVector", {});
     _peak_thresh = pset.get<double>("PeakThresh");
     _start_thresh = pset.get<double>("StartThresh");
     _end_thresh = pset.get<double>("EndThresh");
@@ -48,13 +50,21 @@ namespace pmtana {
   }
 
   //***************************************************************
-  bool AlgoCFD::RecoPulse(const pmtana::Waveform_t& wf,
+  bool AlgoCFD::RecoPulse(const raw::OpDetWaveform& wf,
                           const pmtana::PedestalMean_t& mean_v,
                           const pmtana::PedestalSigma_t& sigma_v)
   //***************************************************************
   {
 
     Reset();
+
+    if (_peak_thresh_by_channel) {
+      uint ChannelNumber = wf.ChannelNumber();
+      if (ChannelNumber >= _peak_thresh_vector.size())
+        throw cet::exception("OpHitFinder")
+          << "Threshold not found for channel " << ChannelNumber << "\n";
+      _peak_thresh = _peak_thresh_vector[ChannelNumber];
+    }
 
     std::vector<double> cfd;
     cfd.reserve(wf.size());
