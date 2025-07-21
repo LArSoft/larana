@@ -303,7 +303,8 @@ void mvapid::MVAAlg::PrepareEvent(const art::Event& evt,
 
   for (unsigned int iTrack = 0; iTrack < fTracks.size(); ++iTrack) {
     const art::Ptr<recob::Track> track = fTracks.at(iTrack);
-
+    fTracksToHits[track] = std::vector<art::Ptr<recob::Hit>>();
+    fTracksToSpacePoints[track] = std::vector<art::Ptr<recob::SpacePoint>>();
     const std::vector<art::Ptr<recob::Hit>> trackHits = findTracksToHits.at(iTrack);
 
     for (unsigned int iHit = 0; iHit < trackHits.size(); ++iHit) {
@@ -317,6 +318,8 @@ void mvapid::MVAAlg::PrepareEvent(const art::Event& evt,
 
   for (unsigned int iShower = 0; iShower < fShowers.size(); ++iShower) {
     const art::Ptr<recob::Shower> shower = fShowers.at(iShower);
+    fShowersToHits[shower] = std::vector<art::Ptr<recob::Hit>>();
+    fShowersToSpacePoints[shower] = std::vector<art::Ptr<recob::SpacePoint>>();
     const std::vector<art::Ptr<recob::Hit>> showerHits = findShowersToHits.at(iShower);
 
     for (unsigned int iHit = 0; iHit < showerHits.size(); ++iHit) {
