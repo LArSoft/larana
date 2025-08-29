@@ -33,7 +33,7 @@ namespace pmtana {
   }
 
   //******************************************************************
-  bool PMTPulseRecoBase::Reconstruct(const Waveform_t& wf,
+  bool PMTPulseRecoBase::Reconstruct(const raw::OpDetWaveform& wf,
                                      const PedestalMean_t& mean_v,
                                      const PedestalSigma_t& sigma_v)
   //******************************************************************
