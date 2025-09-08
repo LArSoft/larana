@@ -84,14 +84,6 @@ namespace opdet {
       RawOpDetVecs.push_back(std::move(tmp));
     }
 
-    std::vector<const sim::BeamGateInfo*> beamGateArray;
-    try {
-      evt.getView(fGenModule, beamGateArray);
-    }
-    catch (art::Exception const& err) {
-      if (err.categoryCode() != art::errors::ProductNotFound) throw;
-    }
-
     // Read in the OpticalRawDigit collection from the event.
     art::Handle<std::vector<optdata::OpticalRawDigit>> ordHandle;
     evt.getByLabel(fInputModule, ordHandle);

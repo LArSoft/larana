@@ -97,42 +97,11 @@ namespace pmtana {
   void PMTAna::analyze(const art::Event& evt)
   //#######################################################################################################
   {
+    auto const& pmts = evt.getHandle<std::vector<raw::OpDetWaveform>>(_fifo_mod_name);
+    if (!pmts) { return; }
 
-    //data_ptr->set_event(evt.id().event(), evt.run(), evt.subRun());
-
-    //    std::vector<const optdata::FIFOChannel*> pmtArray;
-    std::vector<const raw::OpDetWaveform*> pmtArray;
-    try {
-
-      evt.getView(_fifo_mod_name, pmtArray);
-    }
-    catch (art::Exception const& e) {
-
-      if (e.categoryCode() != art::errors::ProductNotFound) throw;
-    }
-
-    for (size_t i = 0; i < pmtArray.size(); ++i) {
-
-      //      const optdata::FIFOChannel* fifo_ptr(pmtArray.at(i));
-      const raw::OpDetWaveform* fifo_ptr(pmtArray.at(i));
-
-      _preco_man.Reconstruct(*fifo_ptr);
-
-      //
-      // here I add code to store reco-ed pulse w/ channel number
-      // OR I may make a singleton storage manager...
-
-      /*
-      data_ptr->add_pmtfifo(fifo_ptr->ChannelNumber(),
-			    fifo_ptr->Category(),
-			    fifo_ptr->Frame(),
-			    fifo_ptr->TimeSlice(),
-			    *fifo_ptr);
-			    */
-
-      //
-      //
-      //
+    for (raw::OpDetWaveform const& waveform : *pmts) {
+      _preco_man.Reconstruct(waveform);
     }
   }
 
