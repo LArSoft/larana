@@ -333,12 +333,11 @@ namespace opdet {
 
       // loop over all sim::SimChannels in the event and make sure there are no
       // sim::IDEs with trackID values that are not in the sim::ParticleList
-      std::vector<const sim::SimChannel*> sccol;
       for (auto const& mod : fInputModule) {
-        evt.getView(mod, sccol);
+        auto const& sccol = evt.getProduct<std::vector<sim::SimChannel>>(mod);
         //loop over the sim channels collection
-        for (size_t sc = 0; sc < sccol.size(); ++sc) {
-          const auto& tdcidemap = sccol[sc]->TDCIDEMap();
+        for (sim::SimChannel const& sc : sccol) {
+          const auto& tdcidemap = sc.TDCIDEMap();
           //loop over all of the tdc IDE map objects
           for (auto mapitr = tdcidemap.begin(); mapitr != tdcidemap.end(); mapitr++) {
             const std::vector<sim::IDE> idevec = (*mapitr).second;

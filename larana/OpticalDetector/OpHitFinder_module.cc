@@ -248,14 +248,6 @@ namespace opdet {
     // These is the storage pointer we will put in the event
     std::unique_ptr<std::vector<recob::OpHit>> HitPtr(new std::vector<recob::OpHit>);
 
-    std::vector<const sim::BeamGateInfo*> beamGateArray;
-    try {
-      evt.getView(fGenModule, beamGateArray);
-    }
-    catch (art::Exception const& err) {
-      if (err.categoryCode() != art::errors::ProductNotFound) throw;
-    }
-
     auto const& wireReadoutGeom = art::ServiceHandle<geo::WireReadout const>()->Get();
     auto const clock_data =
       art::ServiceHandle<detinfo::DetectorClocksService const>()->DataFor(evt);
