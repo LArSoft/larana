@@ -44,6 +44,17 @@ cet_build_plugin(Chi2ParticleID art::EDProducer
   fhiclcpp::fhiclcpp
 )
 
+cet_build_plugin(LikelihoodParticleID art::EDProducer
+  LIBRARIES PRIVATE
+  larana::ParticleIdentification
+  lardata::AssociationUtil
+  lardataobj::AnalysisBase
+  lardataobj::RecoBase
+  art::Framework_Principal
+  canvas::canvas
+  fhiclcpp::fhiclcpp
+)
+
 cet_build_plugin(MVAPID art::EDProducer
   LIBRARIES PRIVATE
   larana::ParticleIdentification

@@ -25,7 +25,7 @@
 //------------------------------------------------------------------------------
 pid::LikelihoodPIDAlg::LikelihoodPIDAlg(fhicl::ParameterSet const& pset)
 {
-  fSkipNhits = pset.get<int>("SkipNhits");
+  fmaxrr = pset.get<float>("maxrr");
 
   map_PhysdEdx[13] = new PhysdEdx(13); // == muon
   map_PhysdEdx[211] = new PhysdEdx(211); // == charged pion
@@ -79,6 +79,8 @@ anab::ParticleID pid::LikelihoodPIDAlg::DoParticleID(
       float this_res = trkres[i];
       float this_pitch = trkpitches[i];
 
+      if(this_res > fmaxrr) continue;
+      
       // in MeV/c unit
       float p_mu = 1000.*tmc.GetTrackMomentum(this_res, 13);
       float p_pi = 1000.*tmc.GetTrackMomentum(this_res, 211);

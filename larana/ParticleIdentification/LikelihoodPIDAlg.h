@@ -52,8 +52,7 @@ namespace pid {
     float M_pro = 938.272; // MeV
     
     trkf::TrackMomentumCalculator tmc;
-    int fSkipNhits;
-
+    float fmaxrr;
   }; //
 } // namespace
 #endif // LIKELIHOODPIDALG_H

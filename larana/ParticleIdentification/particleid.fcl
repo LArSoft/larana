@@ -9,6 +9,14 @@ standard_chi2pid:
  Chi2PIDAlg:             @local::standard_chi2pidalg
 }
 
+standard_likelihoodpid:
+{
+ module_type:            "LikelihoodParticleID"
+ TrackModuleLabel:       "spacepts"
+ CalorimetryModuleLabel: "calo"
+ Chi2PIDAlg:             @local::standard_likelihoodpidalg
+}
+
 standard_pidaanalyzer:
 {
   module_type:      "PIDAAnalyzer"
