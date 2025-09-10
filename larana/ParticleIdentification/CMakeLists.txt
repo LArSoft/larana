@@ -2,7 +2,7 @@ cet_make_library(SOURCE
   PhysdEdx.cxx
   Chi2PIDAlg.cxx
 	MVAAlg.cxx
-	PIDAAlg.cxx
+  PIDAAlg.cxx
   LikelihoodPIDAlg.cxx
   LIBRARIES
   PUBLIC

@@ -9,15 +9,15 @@
 #define LIKELIHOODPIDALG_H
 
 #include <bitset>
+#include <cmath>
 #include <optional>
 #include <string>
-#include <cmath>
 
 namespace fhicl {
   class ParameterSet;
 }
-#include "larana/ParticleIdentification/PhysdEdx.h"
 #include "canvas/Persistency/Common/Ptr.h"
+#include "larana/ParticleIdentification/PhysdEdx.h"
 
 #include "larreco/RecoAlg/TrackMomentumCalculator.h"
 
@@ -45,12 +45,12 @@ namespace pid {
     anab::ParticleID DoParticleID(const std::vector<art::Ptr<anab::Calorimetry>>& calo);
 
   private:
-    std::map< int, PhysdEdx* > map_PhysdEdx;
+    std::map<int, PhysdEdx*> map_PhysdEdx;
 
     float M_mu = 105.65837; // MeV
-    float M_pi = 139.570; // MeV, charged pion
-    float M_pro = 938.272; // MeV
-    
+    float M_pi = 139.570;   // MeV, charged pion
+    float M_pro = 938.272;  // MeV
+
     trkf::TrackMomentumCalculator tmc;
     float fmaxrr;
   }; //

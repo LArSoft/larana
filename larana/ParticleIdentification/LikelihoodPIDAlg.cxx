@@ -27,8 +27,8 @@ pid::LikelihoodPIDAlg::LikelihoodPIDAlg(fhicl::ParameterSet const& pset)
 {
   fmaxrr = pset.get<float>("maxrr");
 
-  map_PhysdEdx[13] = new PhysdEdx(13); // == muon
-  map_PhysdEdx[211] = new PhysdEdx(211); // == charged pion
+  map_PhysdEdx[13] = new PhysdEdx(13);     // == muon
+  map_PhysdEdx[211] = new PhysdEdx(211);   // == charged pion
   map_PhysdEdx[2212] = new PhysdEdx(2212); // == proton
 }
 
@@ -57,7 +57,8 @@ anab::ParticleID pid::LikelihoodPIDAlg::DoParticleID(
     if (i_calo == 0)
       plid = calo->PlaneID();
     else if (plid != calo->PlaneID())
-      throw cet::exception("LikelihoodPIDAlg") << "PlaneID mismatch: " << plid << ", " << calo->PlaneID();
+      throw cet::exception("LikelihoodPIDAlg")
+        << "PlaneID mismatch: " << plid << ", " << calo->PlaneID();
 
     int nptmu = 0;
     int nptpi = 0;
@@ -79,30 +80,32 @@ anab::ParticleID pid::LikelihoodPIDAlg::DoParticleID(
       float this_res = trkres[i];
       float this_pitch = trkpitches[i];
 
-      if(this_res > fmaxrr) continue;
-      
-      // in MeV/c unit
-      float p_mu = 1000.*tmc.GetTrackMomentum(this_res, 13);
-      float p_pi = 1000.*tmc.GetTrackMomentum(this_res, 211);
-      float p_pro = 1000.*tmc.GetTrackMomentum(this_res, 2212);
+      if (this_res > fmaxrr) continue;
 
-      float ke_mu = map_PhysdEdx[13] -> MomentumtoKE(p_mu);
-      float ke_pi = map_PhysdEdx[13] -> MomentumtoKE(p_pi);
-      float ke_pro = map_PhysdEdx[13] -> MomentumtoKE(p_pro);
+      // in MeV/c unit
+      float p_mu = 1000. * tmc.GetTrackMomentum(this_res, 13);
+      float p_pi = 1000. * tmc.GetTrackMomentum(this_res, 211);
+      float p_pro = 1000. * tmc.GetTrackMomentum(this_res, 2212);
+
+      float ke_mu = map_PhysdEdx[13]->MomentumtoKE(p_mu);
+      float ke_pi = map_PhysdEdx[13]->MomentumtoKE(p_pi);
+      float ke_pro = map_PhysdEdx[13]->MomentumtoKE(p_pro);
 
       // == muon likelihoods
       double mu_pdf, mu_pdf_max;
-      bool mu_valid_pdf = map_PhysdEdx[13] -> dEdx_PDF(ke_mu, this_pitch, this_dedx, &mu_pdf, &mu_pdf_max);
-      if(mu_valid_pdf){
-	double this_lambdamu = 2. * (log(mu_pdf_max) - log(mu_pdf));
-	lambdamu += this_lambdamu;
-	++nptmu;
+      bool mu_valid_pdf =
+        map_PhysdEdx[13]->dEdx_PDF(ke_mu, this_pitch, this_dedx, &mu_pdf, &mu_pdf_max);
+      if (mu_valid_pdf) {
+        double this_lambdamu = 2. * (log(mu_pdf_max) - log(mu_pdf));
+        lambdamu += this_lambdamu;
+        ++nptmu;
       }
 
       // == pion likelihoods
       double pi_pdf, pi_pdf_max;
-      bool pi_valid_pdf = map_PhysdEdx[211] -> dEdx_PDF(ke_pi, this_pitch, this_dedx, &pi_pdf, &pi_pdf_max);
-      if(pi_valid_pdf){
+      bool pi_valid_pdf =
+        map_PhysdEdx[211]->dEdx_PDF(ke_pi, this_pitch, this_dedx, &pi_pdf, &pi_pdf_max);
+      if (pi_valid_pdf) {
         double this_lambdapi = 2. * (log(pi_pdf_max) - log(pi_pdf));
         lambdapi += this_lambdapi;
         ++nptpi;
@@ -110,8 +113,9 @@ anab::ParticleID pid::LikelihoodPIDAlg::DoParticleID(
 
       // == proton likelihoods
       double pro_pdf, pro_pdf_max;
-      bool pro_valid_pdf = map_PhysdEdx[2212] -> dEdx_PDF(ke_pro, this_pitch, this_dedx, &pro_pdf, &pro_pdf_max);
-      if(pro_valid_pdf){
+      bool pro_valid_pdf =
+        map_PhysdEdx[2212]->dEdx_PDF(ke_pro, this_pitch, this_dedx, &pro_pdf, &pro_pdf_max);
+      if (pro_valid_pdf) {
         double this_lambdapro = 2. * (log(pro_pdf_max) - log(pro_pdf));
         lambdapro += this_lambdapro;
         ++nptpro;
@@ -122,7 +126,7 @@ anab::ParticleID pid::LikelihoodPIDAlg::DoParticleID(
     anab::sParticleIDAlgScores lambdapion;
     anab::sParticleIDAlgScores lambdaproton;
 
-    if(nptmu){
+    if (nptmu) {
       lambdamuon.fAlgName = "Likelihood";
       lambdamuon.fVariableType = anab::kGOF;
       lambdamuon.fTrackDir = anab::kForward;
@@ -134,7 +138,7 @@ anab::ParticleID pid::LikelihoodPIDAlg::DoParticleID(
       AlgScoresVec.push_back(lambdamuon);
     }
 
-    if(nptpi){
+    if (nptpi) {
       lambdapion.fAlgName = "Likelihood";
       lambdapion.fVariableType = anab::kGOF;
       lambdapion.fTrackDir = anab::kForward;
@@ -146,7 +150,7 @@ anab::ParticleID pid::LikelihoodPIDAlg::DoParticleID(
       AlgScoresVec.push_back(lambdapion);
     }
 
-    if(nptpro){
+    if (nptpro) {
       lambdaproton.fAlgName = "Likelihood";
       lambdaproton.fVariableType = anab::kGOF;
       lambdaproton.fTrackDir = anab::kForward;
