@@ -14,7 +14,7 @@ standard_likelihoodpid:
  module_type:            "LikelihoodParticleID"
  TrackModuleLabel:       "spacepts"
  CalorimetryModuleLabel: "calo"
- Chi2PIDAlg:             @local::standard_likelihoodpidalg
+ LikelihoodPIDAlg:       @local::standard_likelihoodpidalg
 }
 
 standard_pidaanalyzer:
