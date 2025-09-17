@@ -96,7 +96,9 @@ anab::ParticleID pid::LikelihoodPIDAlg::DoParticleID(
       bool mu_valid_pdf =
         map_PhysdEdx[13]->dEdx_PDF(ke_mu, this_pitch, this_dedx, &mu_pdf, &mu_pdf_max);
       if (mu_valid_pdf) {
-        double this_lambdamu = 2. * (log(mu_pdf_max) - log(mu_pdf));
+        double this_lambdamu = 0.;
+        if (mu_pdf_max > 1e-6 && mu_pdf > 1e-6)
+          this_lambdamu = 2. * (log(mu_pdf_max) - log(mu_pdf));
         lambdamu += this_lambdamu;
         ++nptmu;
       }
@@ -106,7 +108,9 @@ anab::ParticleID pid::LikelihoodPIDAlg::DoParticleID(
       bool pi_valid_pdf =
         map_PhysdEdx[211]->dEdx_PDF(ke_pi, this_pitch, this_dedx, &pi_pdf, &pi_pdf_max);
       if (pi_valid_pdf) {
-        double this_lambdapi = 2. * (log(pi_pdf_max) - log(pi_pdf));
+        double this_lambdapi = 0.;
+        if (pi_pdf_max > 1e-6 && pi_pdf > 1e-6)
+          this_lambdapi = 2. * (log(pi_pdf_max) - log(pi_pdf));
         lambdapi += this_lambdapi;
         ++nptpi;
       }
@@ -116,7 +120,9 @@ anab::ParticleID pid::LikelihoodPIDAlg::DoParticleID(
       bool pro_valid_pdf =
         map_PhysdEdx[2212]->dEdx_PDF(ke_pro, this_pitch, this_dedx, &pro_pdf, &pro_pdf_max);
       if (pro_valid_pdf) {
-        double this_lambdapro = 2. * (log(pro_pdf_max) - log(pro_pdf));
+        double this_lambdapro = 0.;
+        if (pro_pdf_max > 1e-6 && pro_pdf > 1e-6)
+          this_lambdapro = 2. * (log(pro_pdf_max) - log(pro_pdf));
         lambdapro += this_lambdapro;
         ++nptpro;
       }
