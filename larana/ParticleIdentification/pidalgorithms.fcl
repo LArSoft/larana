@@ -7,6 +7,11 @@ standard_chi2pidalg:
     # MaximumPIDA:            30 # Optional argument: limits PIDA values that are considered for median or mean
 }
 
+standard_likelihoodpidalg:
+{
+    maxrr: 26.0
+}
+
 standard_pidaalg:
 {
   ExponentConstant: 0.42

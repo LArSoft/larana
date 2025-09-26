@@ -1,10 +1,13 @@
 cet_make_library(SOURCE
+  PhysdEdx.cxx
   Chi2PIDAlg.cxx
 	MVAAlg.cxx
   PIDAAlg.cxx
+  LikelihoodPIDAlg.cxx
   LIBRARIES
   PUBLIC
   larreco::Calorimetry
+  larreco::RecoAlg
   lardataobj::AnalysisBase
   larcoreobj::SimpleTypesAndConstants
   canvas::canvas
@@ -12,6 +15,7 @@ cet_make_library(SOURCE
   ROOT::Hist
   ROOT::Physics
   ROOT::TMVA
+  ROOT::MathMore
   PRIVATE
   lardata::AssociationUtil
   lardata::DetectorClocksService
@@ -30,6 +34,17 @@ cet_make_library(SOURCE
 )
 
 cet_build_plugin(Chi2ParticleID art::EDProducer
+  LIBRARIES PRIVATE
+  larana::ParticleIdentification
+  lardata::AssociationUtil
+  lardataobj::AnalysisBase
+  lardataobj::RecoBase
+  art::Framework_Principal
+  canvas::canvas
+  fhiclcpp::fhiclcpp
+)
+
+cet_build_plugin(LikelihoodParticleID art::EDProducer
   LIBRARIES PRIVATE
   larana::ParticleIdentification
   lardata::AssociationUtil
