@@ -39,11 +39,11 @@ private:
 };
 
 pid::LikelihoodParticleID::LikelihoodParticleID(fhicl::ParameterSet const& p)
-  : EDProducer{p}, fLikelihoodAlg(p.get<fhicl::ParameterSet>("LikelihoodPIDAlg"))
+  : EDProducer{p}
+  , fTrackModuleLabel(p.get<std::string>("TrackModuleLabel"))
+  , fCalorimetryModuleLabel(p.get<std::string>("CalorimetryModuleLabel"))
+  , fLikelihoodAlg(p.get<fhicl::ParameterSet>("LikelihoodPIDAlg"))
 {
-  fTrackModuleLabel = p.get<std::string>("TrackModuleLabel");
-  fCalorimetryModuleLabel = p.get<std::string>("CalorimetryModuleLabel");
-
   produces<std::vector<anab::ParticleID>>();
   produces<art::Assns<recob::Track, anab::ParticleID>>();
 }

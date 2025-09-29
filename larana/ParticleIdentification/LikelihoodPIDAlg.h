@@ -13,9 +13,8 @@
 #include <optional>
 #include <string>
 
-namespace fhicl {
-  class ParameterSet;
-}
+#include "fhiclcpp/fwd.h"
+
 #include "canvas/Persistency/Common/Ptr.h"
 #include "larana/ParticleIdentification/PhysdEdx.h"
 
@@ -46,11 +45,6 @@ namespace pid {
 
   private:
     std::map<int, PhysdEdx*> map_PhysdEdx;
-
-    float M_mu = 105.65837; // MeV
-    float M_pi = 139.570;   // MeV, charged pion
-    float M_pro = 938.272;  // MeV
-
     trkf::TrackMomentumCalculator tmc;
     float fmaxrr;
   }; //

@@ -22,6 +22,12 @@
 
 #include "cetlib/pow.h"
 
+namespace {
+  constexpr float M_mu = 105.65837; // MeV
+  constexpr float M_pi = 139.570;   // MeV, charged pion
+  constexpr float M_pro = 938.272;  // MeV
+}
+
 //------------------------------------------------------------------------------
 pid::LikelihoodPIDAlg::LikelihoodPIDAlg(fhicl::ParameterSet const& pset)
 {
