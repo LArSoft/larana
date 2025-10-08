@@ -44,7 +44,7 @@ namespace pid {
     anab::ParticleID DoParticleID(const std::vector<art::Ptr<anab::Calorimetry>>& calo);
 
   private:
-    std::map<int, PhysdEdx*> map_PhysdEdx;
+    std::map<int, std::unique_ptr<PhysdEdx>> map_PhysdEdx;
     trkf::TrackMomentumCalculator tmc;
     float fmaxrr;
   }; //

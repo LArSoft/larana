@@ -33,9 +33,9 @@ pid::LikelihoodPIDAlg::LikelihoodPIDAlg(fhicl::ParameterSet const& pset)
 {
   fmaxrr = pset.get<float>("maxrr");
 
-  map_PhysdEdx[13] = new PhysdEdx(13);     // == muon
-  map_PhysdEdx[211] = new PhysdEdx(211);   // == charged pion
-  map_PhysdEdx[2212] = new PhysdEdx(2212); // == proton
+  map_PhysdEdx[13] = std::make_unique<PhysdEdx>(13);     // == muon
+  map_PhysdEdx[211] = std::make_unique<PhysdEdx>(211);   // == charged pion
+  map_PhysdEdx[2212] = std::make_unique<PhysdEdx>(2212); // == proto
 }
 
 //------------------------------------------------------------------------------
@@ -103,8 +103,12 @@ anab::ParticleID pid::LikelihoodPIDAlg::DoParticleID(
         map_PhysdEdx[13]->dEdx_PDF(ke_mu, this_pitch, this_dedx, &mu_pdf, &mu_pdf_max);
       if (mu_valid_pdf) {
         double this_lambdamu = 0.;
-        if (mu_pdf_max > 1e-6 && mu_pdf > 1e-6)
-          this_lambdamu = 2. * (log(mu_pdf_max) - log(mu_pdf));
+        if (mu_pdf_max > 1e-6) {
+          if (mu_pdf > 1e-6)
+            this_lambdamu = 2. * (log(mu_pdf_max) - log(mu_pdf));
+          else
+            this_lambdamu = 2. * (log(mu_pdf_max) - log(1e-6));
+        }
         lambdamu += this_lambdamu;
         ++nptmu;
       }
@@ -115,8 +119,12 @@ anab::ParticleID pid::LikelihoodPIDAlg::DoParticleID(
         map_PhysdEdx[211]->dEdx_PDF(ke_pi, this_pitch, this_dedx, &pi_pdf, &pi_pdf_max);
       if (pi_valid_pdf) {
         double this_lambdapi = 0.;
-        if (pi_pdf_max > 1e-6 && pi_pdf > 1e-6)
-          this_lambdapi = 2. * (log(pi_pdf_max) - log(pi_pdf));
+        if (pi_pdf_max > 1e-6) {
+          if (pi_pdf > 1e-6)
+            this_lambdapi = 2. * (log(pi_pdf_max) - log(pi_pdf));
+          else
+            this_lambdapi = 2. * (log(pi_pdf_max) - log(1e-6));
+        }
         lambdapi += this_lambdapi;
         ++nptpi;
       }
@@ -127,8 +135,12 @@ anab::ParticleID pid::LikelihoodPIDAlg::DoParticleID(
         map_PhysdEdx[2212]->dEdx_PDF(ke_pro, this_pitch, this_dedx, &pro_pdf, &pro_pdf_max);
       if (pro_valid_pdf) {
         double this_lambdapro = 0.;
-        if (pro_pdf_max > 1e-6 && pro_pdf > 1e-6)
-          this_lambdapro = 2. * (log(pro_pdf_max) - log(pro_pdf));
+        if (pro_pdf_max > 1e-6) {
+          if (pro_pdf > 1e-6)
+            this_lambdapro = 2. * (log(pro_pdf_max) - log(pro_pdf));
+          else
+            this_lambdapro = 2. * (log(pro_pdf_max) - log(1e-6));
+        }
         lambdapro += this_lambdapro;
         ++nptpro;
       }
