@@ -40,19 +40,19 @@ void pid::PhysdEdx::SetPdgCode(int pdg)
   pdgcode = pdg;
 
   if (abs(pdgcode) == 13) { //muon
-    mass = 105.6583755;
+    mass = 105.6583755; // MeV
     charge = 1;
   }
   else if (abs(pdgcode) == 211) { //pion
-    mass = 139.57039;
+    mass = 139.57039; // MeV
     charge = 1;
   }
   else if (abs(pdgcode) == 321) { //kaon
-    mass = 493.677;
+    mass = 493.677; // MeV
     charge = 1;
   }
   else if (pdgcode == 2212) { //proton
-    mass = 938.27208816;
+    mass = 938.27208816; // MeV
     charge = 1;
   }
   else {
