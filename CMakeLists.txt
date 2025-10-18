@@ -36,6 +36,7 @@ find_package(nurandom REQUIRED EXPORT)
 find_package(nusimdata REQUIRED EXPORT)
 
 find_package(CLHEP COMPONENTS Random REQUIRED EXPORT)
+find_package(Eigen3 REQUIRED)
 find_package(ROOT COMPONENTS Core GenVector Hist MathCore Physics RIO TMVA Tree REQUIRED EXPORT)
 
 find_package(larcore REQUIRED EXPORT)
