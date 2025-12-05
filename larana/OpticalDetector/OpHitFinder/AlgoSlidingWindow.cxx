@@ -26,6 +26,10 @@ namespace pmtana {
   {
     _positive = pset.get<bool>("PositivePolarity", true);
 
+    _adc_thres_by_channel = pset.get<bool>("ADCThresholdByChannel", false);
+
+    _adc_thres_vector = pset.get<std::vector<float>>("ADCThresVector", {});
+
     _adc_thres = pset.get<float>("ADCThreshold");
 
     _tail_adc_thres = pset.get<float>("TailADCThreshold", _adc_thres);
@@ -59,7 +63,7 @@ namespace pmtana {
   }
 
   //***************************************************************
-  bool AlgoSlidingWindow::RecoPulse(const pmtana::Waveform_t& wf,
+  bool AlgoSlidingWindow::RecoPulse(const raw::OpDetWaveform& wf,
                                     const pmtana::PedestalMean_t& mean_v,
                                     const pmtana::PedestalSigma_t& sigma_v)
   //***************************************************************
@@ -86,6 +90,17 @@ namespace pmtana {
     //threshold += _ped_mean;
 
     Reset();
+
+    if (_adc_thres_by_channel) {
+      uint ChannelNumber = wf.ChannelNumber();
+      if (ChannelNumber >= _adc_thres_vector.size())
+        throw cet::exception("OpHitFinder")
+          << "ADC Threshold not found for channel " << ChannelNumber << "\n";
+      _adc_thres = _adc_thres_vector[ChannelNumber];
+    }
+
+    std::cout << " The channel number is " << wf.ChannelNumber() << " and the adc threshold is "
+              << _adc_thres << std::endl;
 
     for (size_t i = 0; i < wf.size(); ++i) {
 
