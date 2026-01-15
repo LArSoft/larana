@@ -39,9 +39,12 @@ namespace pmtana {
     //      void SetNSigma(double v) {_nsigma = v;};
 
   protected:
-    bool RecoPulse(const pmtana::Waveform_t&,
+    bool RecoPulse(const raw::OpDetWaveform&,
                    const pmtana::PedestalMean_t&,
                    const pmtana::PedestalSigma_t&);
+
+    //Whether to apply an individual threshold for each channel
+    bool _adc_thres_by_channel;
 
     // A variable holder for a user-defined absolute ADC threshold value
     double _adc_thres;
@@ -54,6 +57,9 @@ namespace pmtana {
 
     // Use this pedestal instead of the one given by the pedestal algorithm
     double _pedestal;
+
+    // Vector of ADCThreshold to be used for each channel
+    std::vector<float> _adc_thres_vector;
 
     // A variable holder for a multiplicative factor for the pedestal
     // standard deviation to define the threshold
