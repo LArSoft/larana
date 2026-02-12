@@ -40,8 +40,7 @@ namespace pmtana {
   };
 
   RiseTimeThreshold::RiseTimeThreshold(art::ToolConfigTable<Config> const& config)
-    : fPeakRatio{config().PeakRatio()},
-      fInterpolateSample{config().InterpolateSamples()}
+    : fPeakRatio{config().PeakRatio()}, fInterpolateSample{config().InterpolateSamples()}
   {}
 
   double RiseTimeThreshold::RiseTime(const pmtana::Waveform_t& wf_pulse,
@@ -67,18 +66,18 @@ namespace pmtana {
     double rise = std::lower_bound(wf_aux.begin(), it_max, fPeakRatio * (*it_max)) - wf_aux.begin();
 
     // linear interpolation
-    if(fInterpolateSample && rise > 0){
-      rise = InterpolateTicks(rise-1, wf_aux[rise-1], wf_aux[rise], fPeakRatio * (*it_max) );
+    if (fInterpolateSample && rise > 0) {
+      rise = InterpolateTicks(rise - 1, wf_aux[rise - 1], wf_aux[rise], fPeakRatio * (*it_max));
     }
 
     return rise;
   }
 
-  double RiseTimeThreshold::InterpolateTicks(size_t i, double y1, double y2, double thr) const 
+  double RiseTimeThreshold::InterpolateTicks(size_t i, double y1, double y2, double thr) const
   {
     // Linear interpolation to find x at y=thr
     // between (i,y1) and (i+1,y2)
-    double frac = (thr-y1)/(y2-y1);
+    double frac = (thr - y1) / (y2 - y1);
     return i + frac;
   }
 
