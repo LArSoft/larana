@@ -62,9 +62,11 @@ namespace pmtana {
       }
     }
 
+    // rise is first sample after threshold is crossed
     auto it_max = max_element(wf_aux.begin(), wf_aux.end());
     double rise = std::lower_bound(wf_aux.begin(), it_max, fPeakRatio * (*it_max)) - wf_aux.begin();
 
+    // linear interpolation
     if(fInterpolateSample && rise > 0){
       rise = InterpolateTicks(rise-1, wf_aux[rise-1], wf_aux[rise], fPeakRatio * (*it_max) );
     }
@@ -72,13 +74,13 @@ namespace pmtana {
     return rise;
   }
 
-double RiseTimeThreshold::InterpolateTicks(size_t i, double yi, double yii, double thr) const 
-{
-  // Linear interpolation to find x at y=thr
-  // between (i,y[i]) and (i+1,y[i+1])
-  double frac = (thr-yi)/(yii-yi);
-  return i + frac;
-}
+  double RiseTimeThreshold::InterpolateTicks(size_t i, double y1, double y2, double thr) const 
+  {
+    // Linear interpolation to find x at y=thr
+    // between (i,y1) and (i+1,y2)
+    double frac = (thr-y1)/(y2-y1);
+    return i + frac;
+  }
 
 }
 
