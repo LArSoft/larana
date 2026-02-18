@@ -34,7 +34,7 @@ namespace pmtana {
                     bool _positive) const override;
 
   private:
-    double InterpolateTicks(size_t i, double yi, double yii, double thr) const;
+    double InterpolateTicks(size_t i, double y1, double y2, double thr) const;
     double fPeakRatio;
     bool fInterpolateSample;
   };
@@ -63,14 +63,14 @@ namespace pmtana {
 
     // rise is first sample after threshold is crossed
     auto it_max = max_element(wf_aux.begin(), wf_aux.end());
-    double rise = std::lower_bound(wf_aux.begin(), it_max, fPeakRatio * (*it_max)) - wf_aux.begin();
+    size_t rise = std::lower_bound(wf_aux.begin(), it_max, fPeakRatio * (*it_max)) - wf_aux.begin();
 
     // linear interpolation
     if (fInterpolateSample && rise > 0) {
-      rise = InterpolateTicks(rise - 1, wf_aux[rise - 1], wf_aux[rise], fPeakRatio * (*it_max));
+      return InterpolateTicks(rise - 1, wf_aux[rise - 1], wf_aux[rise], fPeakRatio * (*it_max));
     }
 
-    return rise;
+    return static_cast<double>rise;
   }
 
   double RiseTimeThreshold::InterpolateTicks(size_t i, double y1, double y2, double thr) const
