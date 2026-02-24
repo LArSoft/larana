@@ -70,7 +70,7 @@ namespace pmtana {
       return InterpolateTicks(rise - 1, wf_aux[rise - 1], wf_aux[rise], fPeakRatio * (*it_max));
     }
 
-    return static_cast<double> rise;
+    return static_cast<double>(rise);
   }
 
   double RiseTimeThreshold::InterpolateTicks(size_t i, double y1, double y2, double thr) const
