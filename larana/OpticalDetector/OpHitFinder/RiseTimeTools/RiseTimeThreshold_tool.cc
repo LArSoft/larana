@@ -21,8 +21,8 @@ namespace pmtana {
   public:
     //Configuration parameters
     struct Config {
-
       fhicl::Atom<double> PeakRatio{fhicl::Name("PeakRatio")};
+      fhicl::Atom<bool> InterpolateSamples{fhicl::Name("InterpolateSamples"), false};
     };
 
     // Default constructor
@@ -34,11 +34,13 @@ namespace pmtana {
                     bool _positive) const override;
 
   private:
+    double InterpolateTicks(size_t i, double y1, double y2, double thr) const;
     double fPeakRatio;
+    bool fInterpolateSample;
   };
 
   RiseTimeThreshold::RiseTimeThreshold(art::ToolConfigTable<Config> const& config)
-    : fPeakRatio{config().PeakRatio()}
+    : fPeakRatio{config().PeakRatio()}, fInterpolateSample{config().InterpolateSamples()}
   {}
 
   double RiseTimeThreshold::RiseTime(const pmtana::Waveform_t& wf_pulse,
@@ -59,10 +61,24 @@ namespace pmtana {
       }
     }
 
+    // rise is first sample after threshold is crossed
     auto it_max = max_element(wf_aux.begin(), wf_aux.end());
     size_t rise = std::lower_bound(wf_aux.begin(), it_max, fPeakRatio * (*it_max)) - wf_aux.begin();
 
-    return rise;
+    // linear interpolation
+    if (fInterpolateSample && rise > 0) {
+      return InterpolateTicks(rise - 1, wf_aux[rise - 1], wf_aux[rise], fPeakRatio * (*it_max));
+    }
+
+    return static_cast<double>(rise);
+  }
+
+  double RiseTimeThreshold::InterpolateTicks(size_t i, double y1, double y2, double thr) const
+  {
+    // Linear interpolation to find x at y=thr
+    // between (i,y1) and (i+1,y2)
+    double frac = (thr - y1) / (y2 - y1);
+    return i + frac;
   }
 
 }
