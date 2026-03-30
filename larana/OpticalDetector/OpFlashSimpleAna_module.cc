@@ -53,7 +53,7 @@ opdet::OpFlashSimpleAna::OpFlashSimpleAna(fhicl::ParameterSet const& p) : EDAnal
 // More initializers here.
 {
   fOpFlashModuleLabel = p.get<std::string>("OpFlashModuleLabel", "");
-  fOpHitModuleLabel = p.get<std::string>("OpFlashModuleLabel", "");
+  fOpHitModuleLabel = p.get<std::string>("OpHitModuleLabel", "");
   fMakeOpDetPEHist = p.get<bool>("MakeOpDetPEHist", true);
 }
 
