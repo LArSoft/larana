@@ -248,8 +248,8 @@ fwdir	product_dir	config_data
 #
 ####################################
 product		version		qual	flags		<table_format=2>
-larreco		v10_06_03	-
-cetmodules	v3_24_01	-	only_for_build
+larreco		v10_06_04	-
+cetmodules	v3_27_04	-	only_for_build
 end_product_list
 ####################################
 
