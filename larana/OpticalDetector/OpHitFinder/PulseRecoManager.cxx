@@ -38,7 +38,7 @@ namespace pmtana {
   }
 
   //**********************************************************************
-  bool PulseRecoManager::Reconstruct(const pmtana::Waveform_t& wf) const
+  bool PulseRecoManager::Reconstruct(const raw::OpDetWaveform& wf) const
   //**********************************************************************
   {
     if (_reco_algo_v.empty() && !_ped_algo)
