@@ -22,6 +22,12 @@ namespace detinfo {
 
 namespace opdet {
 
+  /// Default smallest flash TimeWidth [us] that may act as the parent of late light.
+  /// Well below any physical flash and far above the floating-point residue that a
+  /// degenerate flash carries. Overridable via the OpFlashFinder fhicl parameter
+  /// MinParentFlashWidth.
+  constexpr double kDefaultMinParentFlashWidth = 1.0e-3;
+
   void RunFlashFinder(std::vector<recob::OpHit> const&,
                       std::vector<recob::OpFlash>&,
                       std::vector<std::vector<int>>&,
@@ -31,7 +37,8 @@ namespace opdet {
                       float,
                       float,
                       detinfo::DetectorClocksData const&,
-                      float);
+                      float,
+                      double MinParentFlashWidth = kDefaultMinParentFlashWidth);
 
   unsigned int GetAccumIndex(double PeakTime, double MinTime, double BinWidth, double BinOffset);
 
@@ -126,18 +133,22 @@ namespace opdet {
                           double& sumz,
                           double& sumz2);
 
-  void RemoveLateLight(std::vector<recob::OpFlash>&, std::vector<std::vector<int>>&);
+  void RemoveLateLight(std::vector<recob::OpFlash>&,
+                       std::vector<std::vector<int>>&,
+                       double MinParentFlashWidth = kDefaultMinParentFlashWidth);
 
   double GetLikelihoodLateLight(double iPE,
                                 double iTime,
                                 double iWidth,
                                 double jPE,
                                 double jTime,
-                                double jWidth);
+                                double jWidth,
+                                double MinParentFlashWidth = kDefaultMinParentFlashWidth);
 
   void MarkFlashesForRemoval(std::vector<recob::OpFlash> const& FlashVector,
                              size_t BeginFlash,
-                             std::vector<bool>& MarkedForRemoval);
+                             std::vector<bool>& MarkedForRemoval,
+                             double MinParentFlashWidth = kDefaultMinParentFlashWidth);
 
   void RemoveFlashesFromVectors(std::vector<bool> const& MarkedForRemoval,
                                 std::vector<recob::OpFlash>& FlashVector,

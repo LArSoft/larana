@@ -52,6 +52,7 @@ namespace opdet {
     Float_t fFlashThreshold;
     Float_t fWidthTolerance;
     Double_t fTrigCoinc;
+    double fMinParentFlashWidth;
   };
 
 }
@@ -74,6 +75,11 @@ namespace opdet {
     fFlashThreshold = pset.get<float>("FlashThreshold");
     fWidthTolerance = pset.get<float>("WidthTolerance");
     fTrigCoinc = pset.get<double>("TrigCoinc");
+    // Smallest TimeWidth a flash may have and still be treated as the parent of late
+    // light. TimeWidth appears in a denominator in GetLikelihoodLateLight, so a flash
+    // built from a single hit -- or from hits sharing a peak time -- would otherwise
+    // delete every flash behind it. Set to 0 to disable the guard.
+    fMinParentFlashWidth = pset.get<double>("MinParentFlashWidth", kDefaultMinParentFlashWidth);
 
     produces<std::vector<recob::OpFlash>>();
     produces<art::Assns<recob::OpFlash, recob::OpHit>>();
@@ -108,7 +114,8 @@ namespace opdet {
                    fFlashThreshold,
                    fWidthTolerance,
                    clock_data,
-                   fTrigCoinc);
+                   fTrigCoinc,
+                   fMinParentFlashWidth);
 
     // Make the associations which we noted we need
     for (size_t i = 0; i != assocList.size(); ++i) {

@@ -67,7 +67,8 @@ namespace opdet {
                       float const FlashThreshold,
                       float const WidthTolerance,
                       detinfo::DetectorClocksData const& ClocksData,
-                      float const TrigCoinc)
+                      float const TrigCoinc,
+                      double const MinParentFlashWidth)
   {
     // Initial size for accumulators - will be automatically extended if needed
     int initialsize = 6400;
@@ -154,7 +155,7 @@ namespace opdet {
       ConstructFlash(
         HitsPerFlashVec, HitVector, FlashVector, geom, wireReadoutGeom, ClocksData, TrigCoinc);
 
-    RemoveLateLight(FlashVector, RefinedHitsPerFlash);
+    RemoveLateLight(FlashVector, RefinedHitsPerFlash, MinParentFlashWidth);
 
     //checkOnBeamFlash(FlashVector);
 
@@ -592,13 +593,30 @@ namespace opdet {
                                 double const iWidth,
                                 double const jPE,
                                 double const jTime,
-                                double const jWidth)
+                                double const jWidth,
+                                double const MinParentFlashWidth)
   {
     if (iTime > jTime) return 1e6;
+
+    // iWidth sits in a denominator below. ConstructFlash derives TimeWidth from hit PEAK
+    // TIMES only, so a flash built from a single hit -- or from hits sharing a peak time --
+    // gets a width of zero or of a few 1e-14 us. The latter inflates HypPE by ~12 orders
+    // of magnitude, so an arbitrarily faint earlier flash "explains" an arbitrarily bright
+    // later one and deletes it. Observed in DUNE FD atmospheric samples: a 3.9 PE
+    // radiological flash of width 6.6e-14 us deleted a 23,211 PE neutrino flash 19.6 us
+    // later, and with it every other flash for ~35 us.
+    //
+    // A width of EXACTLY zero was harmless only by accident: it gives HypPE = inf, hence
+    // nsigma = NaN, and "NaN < threshold" is false. Reject both cases explicitly.
+    if (!(iWidth > MinParentFlashWidth)) return 1e6;
 
     // Calculate hypothetical PE if this were actually a late flash from i.
     // Argon time const is 1600 ns, so 1.6.
     double HypPE = iPE * jWidth / iWidth * std::exp(-(jTime - iTime) / 1.6);
+
+    // Late light from i cannot carry more photoelectrons than i itself.
+    if (HypPE > iPE) HypPE = iPE;
+
     double nsigma = (jPE - HypPE) / std::sqrt(HypPE);
     return nsigma;
   }
@@ -606,9 +624,14 @@ namespace opdet {
   //----------------------------------------------------------------------------
   void MarkFlashesForRemoval(std::vector<recob::OpFlash> const& FlashVector,
                              size_t const BeginFlash,
-                             std::vector<bool>& MarkedForRemoval)
+                             std::vector<bool>& MarkedForRemoval,
+                             double const MinParentFlashWidth)
   {
     for (size_t iFlash = BeginFlash; iFlash != FlashVector.size(); ++iFlash) {
+
+      // A flash that is itself being discarded should not be used to justify discarding
+      // later ones.
+      if (MarkedForRemoval.at(iFlash - BeginFlash)) continue;
 
       double iTime = FlashVector.at(iFlash).Time();
       double iPE = FlashVector.at(iFlash).TotalPE();
@@ -624,7 +647,8 @@ namespace opdet {
 
         // If smaller than, or within 2sigma of expectation,
         // attribute to late light and toss out
-        if (GetLikelihoodLateLight(iPE, iTime, iWidth, jPE, jTime, jWidth) < 3.0)
+        if (GetLikelihoodLateLight(iPE, iTime, iWidth, jPE, jTime, jWidth, MinParentFlashWidth) <
+            3.0)
           MarkedForRemoval.at(jFlash - BeginFlash) = true;
       }
     }
@@ -645,7 +669,8 @@ namespace opdet {
 
   //----------------------------------------------------------------------------
   void RemoveLateLight(std::vector<recob::OpFlash>& FlashVector,
-                       std::vector<std::vector<int>>& RefinedHitsPerFlash)
+                       std::vector<std::vector<int>>& RefinedHitsPerFlash,
+                       double const MinParentFlashWidth)
   {
     std::vector<bool> MarkedForRemoval(RefinedHitsPerFlash.size(), false);
 
@@ -661,7 +686,7 @@ namespace opdet {
 
     std::sort(FlashVector.begin() + BeginFlash, FlashVector.end(), sort_flash_by_time);
 
-    MarkFlashesForRemoval(FlashVector, BeginFlash, MarkedForRemoval);
+    MarkFlashesForRemoval(FlashVector, BeginFlash, MarkedForRemoval, MinParentFlashWidth);
 
     RemoveFlashesFromVectors(MarkedForRemoval, FlashVector, BeginFlash, RefinedHitsPerFlash);
 
