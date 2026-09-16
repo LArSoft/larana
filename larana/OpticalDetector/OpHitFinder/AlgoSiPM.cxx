@@ -14,7 +14,8 @@ namespace pmtana {
                      const std::string name)
     : PMTPulseRecoBase(name)
   {
-
+    _adc_thres_by_channel = pset.get<bool>("ADCThresholdByChannel", false);
+    _adc_thres_vector = pset.get<std::vector<float>>("ADCThresVector", {});
     _adc_thres = pset.get<float>("ADCThreshold");
     _min_width = pset.get<float>("MinWidth");
     _2nd_thres = pset.get<float>("SecondThreshold");
@@ -34,7 +35,7 @@ namespace pmtana {
   }
 
   //---------------------------------------------------------------------------
-  bool AlgoSiPM::RecoPulse(const pmtana::Waveform_t& wf,
+  bool AlgoSiPM::RecoPulse(const raw::OpDetWaveform& wf,
                            const pmtana::PedestalMean_t& ped_mean,
                            const pmtana::PedestalSigma_t& ped_rms)
   {
@@ -48,6 +49,14 @@ namespace pmtana {
     double pedestal =
       ped_mean
         .front(); //Switch pedestal definition to incoroprate pedestal finder - K.S. 04/18/2019
+
+    if (_adc_thres_by_channel) {
+      uint ChannelNumber = wf.ChannelNumber();
+      if (ChannelNumber >= _adc_thres_vector.size())
+        throw cet::exception("OpHitFinder")
+          << "ADC Threshold not found for channel " << ChannelNumber << "\n";
+      _adc_thres = _adc_thres_vector[ChannelNumber];
+    }
 
     double threshold = _adc_thres;
     threshold += pedestal;
