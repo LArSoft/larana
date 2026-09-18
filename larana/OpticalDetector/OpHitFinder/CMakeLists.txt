@@ -4,6 +4,7 @@ cet_make_library(SOURCE
   AlgoCFD.cxx
   AlgoFixedWindow.cxx
   AlgoSiPM.cxx
+  AlgoSaturation.cxx
   AlgoSlidingWindow.cxx
   AlgoThreshold.cxx
   OpHitAlg.cxx
