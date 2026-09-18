@@ -37,8 +37,16 @@ namespace pmtana {
     _ped_algo = algo;
   }
 
+  // Forward default reconstruct using invalid/default channel ID
   //**********************************************************************
   bool PulseRecoManager::Reconstruct(const pmtana::Waveform_t& wf) const
+  //**********************************************************************
+  {
+    return Reconstruct(wf, std::numeric_limits<int>::max());
+  }
+
+  //**********************************************************************
+  bool PulseRecoManager::Reconstruct(const pmtana::Waveform_t& wf, int ch) const
   //**********************************************************************
   {
     if (_reco_algo_v.empty() && !_ped_algo)
@@ -58,6 +66,8 @@ namespace pmtana {
 
       if (ped_algo) {
 
+        pulse_algo->Reset();
+        pulse_algo->SetChannel(ch); // Inject channel ID prior to RecoPulse
         ped_status = ped_status && ped_algo->Evaluate(wf);
 
         pulse_reco_status = (ped_status && pulse_reco_status &&
@@ -71,6 +81,8 @@ namespace pmtana {
           throw OpticalRecoException(ss.str());
         }
 
+        pulse_algo->Reset();
+        pulse_algo->SetChannel(ch); // Inject channel ID prior to RecoPulse
         pulse_reco_status =
           (pulse_reco_status && pulse_algo->Reconstruct(wf, _ped_algo->Mean(), _ped_algo->Sigma()));
       }
