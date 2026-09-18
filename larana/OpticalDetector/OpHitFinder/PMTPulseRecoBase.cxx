@@ -12,7 +12,10 @@
 namespace pmtana {
 
   //*************************************************************************
-  PMTPulseRecoBase::PMTPulseRecoBase(const std::string name) : _name(name), _status(true), _channel(std::numeric_limits<size_t>::max()) // Initialize to invalid channel
+  PMTPulseRecoBase::PMTPulseRecoBase(const std::string name)
+    : _name(name)
+    , _status(true)
+    , _channel(std::numeric_limits<size_t>::max()) // Initialize to invalid channel
   //*************************************************************************
   {
     Reset();

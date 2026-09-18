@@ -42,7 +42,7 @@ namespace pmtana {
   bool PulseRecoManager::Reconstruct(const pmtana::Waveform_t& wf) const
   //**********************************************************************
   {
-     return Reconstruct(wf, std::numeric_limits<int>::max());
+    return Reconstruct(wf, std::numeric_limits<int>::max());
   }
 
   //**********************************************************************

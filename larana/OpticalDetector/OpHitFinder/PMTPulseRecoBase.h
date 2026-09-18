@@ -16,9 +16,9 @@
 #define PMTPULSERECOBASE_H
 
 // STL
+#include <limits>
 #include <string>
 #include <vector>
-#include <limits>
 
 #include "OpticalRecoTypes.h"
 #include "larana/OpticalDetector/OpHitFinder/RiseTimeTools/RiseTimeCalculatorBase.h"
@@ -79,7 +79,7 @@ namespace pmtana {
     /// Status getter
     bool Status() const;
 
-    // NEW: Channel information (modified by L. Paulucci)  
+    // NEW: Channel information (modified by L. Paulucci)
     /// Set the channel number for the current waveform
     virtual void SetChannel(int ch) { _channel = ch; }
 
@@ -130,7 +130,6 @@ namespace pmtana {
     std::unique_ptr<pmtana::RiseTimeCalculatorBase> _risetime_calc_ptr = nullptr;
 
   protected:
-
     size_t _channel{std::numeric_limits<size_t>::max()};
 
     /**
