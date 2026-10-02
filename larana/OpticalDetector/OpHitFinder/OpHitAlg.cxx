@@ -34,7 +34,8 @@ namespace opdet {
                     float hitThreshold,
                     detinfo::DetectorClocksData const& clocksData,
                     calib::IPhotonCalibrator const& calibrator,
-                    bool use_start_time)
+                    bool use_start_time,
+                    bool timestamp_is_relative)
   {
     for (auto const& waveform : opDetWaveformVector) {
       const int channel = static_cast<int>(waveform.ChannelNumber());
@@ -60,7 +61,8 @@ namespace opdet {
                      hitVector,
                      clocksData,
                      calibrator,
-                     use_start_time);
+                     use_start_time,
+                     timestamp_is_relative);
     }
   }
 
@@ -72,19 +74,26 @@ namespace opdet {
                     std::vector<recob::OpHit>& hitVector,
                     detinfo::DetectorClocksData const& clocksData,
                     calib::IPhotonCalibrator const& calibrator,
-                    bool use_start_time)
+                    bool use_start_time,
+                    bool timestamp_is_relative)
   {
     if (pulse.peak < hitThreshold) return;
 
-    double absTime = timeStamp + clocksData.OpticalClock().TickPeriod() *
-                                   (use_start_time ? pulse.t_start : pulse.t_max);
-
+    auto tick_period = clocksData.OpticalClock().TickPeriod();
+    double absTime = timeStamp +  tick_period * (use_start_time ? pulse.t_start : pulse.t_max);
+    double startTime = timeStamp + tick_period * pulse.t_start;
+    // ProtoDUNE-HD/VD OpDetWaveform timestamps were made relative to the trigger timestamp in the following commit
+    // https://github.com/DUNE/duneprototypes/pull/109/changes/6ab18a41cdc78edcc609bc5043ad93d9b5ac2134
+    // So we can turn off this shifting here if necessary
+    if (timestamp_is_relative) {
+       absTime += clocksData.TriggerTime();
+    }
+    else {
+       startTime -= clocksData.TriggerTime();
+    }
     double relTime = absTime - clocksData.TriggerTime();
 
-    double startTime =
-      timeStamp + clocksData.OpticalClock().TickPeriod() * pulse.t_start - clocksData.TriggerTime();
-
-    double riseTime = clocksData.OpticalClock().TickPeriod() * pulse.t_rise;
+    double riseTime = tick_period * pulse.t_rise;
 
     int frame = clocksData.OpticalClock().Frame(timeStamp);
 
@@ -94,7 +103,7 @@ namespace opdet {
     else
       PE = calibrator.PE(pulse.peak, channel);
 
-    double width = (pulse.t_end - pulse.t_start) * clocksData.OpticalClock().TickPeriod();
+    double width = (pulse.t_end - pulse.t_start) * tick_period;
 
     hitVector.emplace_back(channel,
                            relTime,
