@@ -332,7 +332,7 @@ cet_write_plugin_builder(lar::HitAlgoMakerTool art::tool Modules
 
 include(lar::HitAlgoMakerTool)
 
-foreach(AlgoName CFD FixedWindow SiPM SlidingWindow Threshold )
+foreach(AlgoName CFD FixedWindow SiPM SlidingWindow Threshold Saturation)
   cet_build_plugin(Algo${AlgoName}Maker lar::HitAlgoMakerTool
     LIBRARIES PRIVATE
       larana::OpticalDetector_OpHitFinder

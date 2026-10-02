@@ -45,7 +45,7 @@ namespace opdet {
         continue;
       }
 
-      pulseRecoMgr.Reconstruct(waveform);
+      pulseRecoMgr.Reconstruct(waveform, channel);
 
       // Get the result
       auto const& pulses = threshAlg.GetPulses();

@@ -39,6 +39,9 @@ namespace pmtana {
     /// Implementation of ana_base::analyze method
     bool Reconstruct(const pmtana::Waveform_t&) const;
 
+    /// ADD: New overloaded Reconstruct signature accepting channel number
+    bool Reconstruct(const pmtana::Waveform_t& wf, int ch) const;
+
     /// A method to set pulse reconstruction algorithm
     void AddRecoAlgo(pmtana::PMTPulseRecoBase* algo, PMTPedestalBase* ped_algo = nullptr);
 
