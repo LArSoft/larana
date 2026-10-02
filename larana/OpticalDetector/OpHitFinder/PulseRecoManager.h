@@ -16,6 +16,7 @@
 #define PULSERECOMANAGER_H
 
 #include "larana/OpticalDetector/OpHitFinder/OpticalRecoTypes.h"
+#include "lardataobj/RawData/OpDetWaveform.h"
 
 #include <vector>
 
@@ -37,7 +38,7 @@ namespace pmtana {
     PulseRecoManager();
 
     /// Implementation of ana_base::analyze method
-    bool Reconstruct(const pmtana::Waveform_t&) const;
+    bool Reconstruct(const raw::OpDetWaveform&) const;
 
     /// A method to set pulse reconstruction algorithm
     void AddRecoAlgo(pmtana::PMTPulseRecoBase* algo, PMTPedestalBase* ped_algo = nullptr);

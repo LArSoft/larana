@@ -50,7 +50,7 @@ namespace pmtana {
 
   protected:
     /// Implementation of AlgoThreshold::reco() method
-    bool RecoPulse(const pmtana::Waveform_t& wf,
+    bool RecoPulse(const raw::OpDetWaveform& wf,
                    const pmtana::PedestalMean_t& mean_v,
                    const pmtana::PedestalSigma_t& sigma_v);
 
