@@ -21,6 +21,7 @@ namespace fhicl {
 }
 
 #include "larana/OpticalDetector/OpHitFinder/OpticalRecoTypes.h"
+#include "lardataobj/RawData/OpDetWaveform.h"
 
 #include <string>
 
@@ -47,12 +48,15 @@ namespace pmtana {
 
   protected:
     /// Implementation of AlgoSlidingWindow::reco() method
-    bool RecoPulse(const pmtana::Waveform_t&,
+    bool RecoPulse(const raw::OpDetWaveform&,
                    const pmtana::PedestalMean_t&,
                    const pmtana::PedestalSigma_t&);
 
     /// A boolean to set waveform positive/negative polarity
     bool _positive;
+
+    //Whether to apply an individual threshold for each channel
+    bool _adc_thres_by_channel;
 
     /// A variable holder for a user-defined absolute ADC threshold value
     float _adc_thres, _tail_adc_thres, _end_adc_thres;
@@ -64,6 +68,9 @@ namespace pmtana {
     float _nsigma, _tail_nsigma, _end_nsigma;
     bool _verbose;
     size_t _num_presample, _num_postsample;
+
+    // Vector of ADCThreshold to be used for each channel
+    std::vector<float> _adc_thres_vector;
   };
 
 }
