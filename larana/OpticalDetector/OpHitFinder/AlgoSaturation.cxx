@@ -83,7 +83,7 @@ namespace pmtana {
           //Check for saturation: Execute tool if configured and channel is not ignored
           if (fCorrectionTool && std::find(_ignoreChannels.begin(), _ignoreChannels.end(), ch) ==
                                    _ignoreChannels.end()) {
-            fCorrectionTool->CorrectSaturation(wf, _pulse, ch);
+            fCorrectionTool->CorrectSaturation(wf, _pulse, pedestal, ch);
           }
           if (_risetime_calc_ptr)
             _pulse.t_rise = _risetime_calc_ptr->RiseTime(

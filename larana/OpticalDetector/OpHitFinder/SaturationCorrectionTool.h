@@ -25,6 +25,7 @@ namespace pmtana {
     // Pure virtual interface method to override in experiment-specific tools
     virtual void CorrectSaturation(pmtana::Waveform_t const& wf,
                                    pmtana::pulse_param& pulse,
+                                   double pedestal,
                                    int ch) = 0;
   };
 
