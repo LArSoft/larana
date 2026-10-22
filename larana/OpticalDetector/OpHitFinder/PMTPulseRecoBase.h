@@ -16,6 +16,7 @@
 #define PMTPULSERECOBASE_H
 
 // STL
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -78,6 +79,13 @@ namespace pmtana {
     /// Status getter
     bool Status() const;
 
+    // NEW: Channel information (modified by L. Paulucci)
+    /// Set the channel number for the current waveform
+    virtual void SetChannel(int ch) { _channel = ch; }
+
+    /// Retrieve the current waveform channel number
+    int Channel() const { return _channel; }
+
     /// A method to be called event-wise to reset parameters
     virtual void Reset();
 
@@ -122,6 +130,8 @@ namespace pmtana {
     std::unique_ptr<pmtana::RiseTimeCalculatorBase> _risetime_calc_ptr = nullptr;
 
   protected:
+    size_t _channel{std::numeric_limits<size_t>::max()};
+
     /**
      A method to integrate an waveform from index "begin" to the "end". The result is filled in "result" reference.
      If the "end" is default (=0), then "end" is set to the last index of the waveform.

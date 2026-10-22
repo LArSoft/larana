@@ -4,6 +4,7 @@ cet_make_library(SOURCE
   AlgoCFD.cxx
   AlgoFixedWindow.cxx
   AlgoSiPM.cxx
+  AlgoSaturation.cxx
   AlgoSlidingWindow.cxx
   AlgoThreshold.cxx
   OpHitAlg.cxx
@@ -17,6 +18,7 @@ cet_make_library(SOURCE
   PulseRecoManager.cxx
   UtilFunc.cxx
   LIBRARIES
+  art::Utilities
   PUBLIC
   lardataobj::RawData
   lardataobj::RecoBase
