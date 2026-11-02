@@ -80,18 +80,16 @@ namespace opdet {
     if (pulse.peak < hitThreshold) return;
 
     auto tick_period = clocksData.OpticalClock().TickPeriod();
-    double absTime = timeStamp +  tick_period * (use_start_time ? pulse.t_start : pulse.t_max);
+    double absTime = timeStamp + tick_period * (use_start_time ? pulse.t_start : pulse.t_max);
     double startTime = timeStamp + tick_period * pulse.t_start;
     // ProtoDUNE-HD/VD OpDetWaveform timestamps were made relative to the trigger timestamp in the following commit
     // https://github.com/DUNE/duneprototypes/pull/109/changes/6ab18a41cdc78edcc609bc5043ad93d9b5ac2134
     // So we can turn off this shifting here if necessary
     double relTime = absTime;
-    if (timestamp_is_relative) {
-       absTime += clocksData.TriggerTime();
-    }
+    if (timestamp_is_relative) { absTime += clocksData.TriggerTime(); }
     else {
-       startTime -= clocksData.TriggerTime();
-       relTime -= clocksData.TriggerTime();
+      startTime -= clocksData.TriggerTime();
+      relTime -= clocksData.TriggerTime();
     }
 
     double riseTime = tick_period * pulse.t_rise;
