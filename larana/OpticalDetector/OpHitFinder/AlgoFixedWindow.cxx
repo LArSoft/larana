@@ -49,7 +49,7 @@ namespace pmtana {
   }
 
   //***************************************************************
-  bool AlgoFixedWindow::RecoPulse(const Waveform_t& wf,
+  bool AlgoFixedWindow::RecoPulse(const raw::OpDetWaveform& wf,
                                   const PedestalMean_t& mean_v,
                                   const PedestalSigma_t& sigma_v)
   //***************************************************************

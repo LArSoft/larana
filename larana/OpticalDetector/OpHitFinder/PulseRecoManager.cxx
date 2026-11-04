@@ -39,7 +39,7 @@ namespace pmtana {
 
   // Forward default reconstruct using invalid/default channel ID
   //**********************************************************************
-  bool PulseRecoManager::Reconstruct(const pmtana::Waveform_t& wf) const
+  bool PulseRecoManager::Reconstruct(const raw::OpDetWaveform& wf) const
   //**********************************************************************
   {
     return Reconstruct(wf, std::numeric_limits<int>::max());
